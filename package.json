@@ -1,0 +1,76 @@
+{
+  "name": "dartifyjson",
+  "displayName": "DARTIFY",
+  "description": "convert JSON data into DART data model",
+  "version": "0.0.8",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ymrabti/JsonToDart"
+  },
+  "bugs": {
+    "url": "https://github.com/ymrabti/JsonToDart/issues"
+  },
+  "publisher": "YOUMTINET",
+  "icon": "screenshots/dartify.jpeg",
+  "categories": [
+    "Programming Languages",
+    "Formatters",
+    "Snippets"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dartify.parseJson",
+        "title": "DARTIFY",
+        "shortTitle": "dartify"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "dartify.parseJson",
+        "key": "ctrl+shift+alt+t"
+      }
+    ],
+    "languages": [
+      {
+        "id": "dart",
+        "aliases": [
+          "Dart",
+          "dart"
+        ],
+        "extensions": [
+          ".dart"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "dart",
+        "scopeName": "source.dart",
+        "path": "./syntaxes/dart.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.70.0",
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "eslint": "^8.20.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "typescript": "^4.7.4",
+    "@vscode/test-electron": "^2.1.5"
+  }
+}
