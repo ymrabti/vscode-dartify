@@ -4,16 +4,17 @@ module.exports = class JsonToDartClassInfo {
 
         ]
     };
-    constructor(json,className) {
-        this.#classData.class.push(this.#getClassInfo(json,className))
+    constructor(json, className) {
+        this.#classData.class.push(this.#getClassInfo(json, className))
     }
-    get result() { 
+    get result() {
         this.#classData.class.reverse()
-        return  this.#classData };
+        return this.#classData
+    };
 
     #getClassInfo(data, className) {
         let classDetails = {
-            className: className ?? "GeneratedDataModel",
+            className: className ?? "DartifyGeneratedDataModel",
             mutable: false,
             parameters: []
         }
@@ -29,7 +30,7 @@ module.exports = class JsonToDartClassInfo {
                     required: false,
                     name: parameterName,
                     parameterName: key,
-                    dataType:dataTypeInfo?.dataType === "dynamic"? "dynamic" : `${dataTypeInfo?.dataType}`,
+                    dataType: dataTypeInfo?.dataType === "dynamic" ? "dynamic" : `${dataTypeInfo?.dataType}${parameterName.startsWith('_') ? '?' : ''}`,
                     inbuilt: dataTypeInfo.inbuilt ?? false,
                     className: dataTypeInfo.className ?? ""
                 })
@@ -46,7 +47,7 @@ module.exports = class JsonToDartClassInfo {
             let duplicateClass = this.#checkIsDuplicateClass(this.#classData.class, data)
             if (duplicateClass != null) {
                 return {
-                    dataType:duplicateClass?.className, //`Map<${this.#getMapKeyDataType(duplicateClass?.parameters)},${duplicateClass?.className}>`,
+                    dataType: duplicateClass?.className, //`Map<${this.#getMapKeyDataType(duplicateClass?.parameters)},${duplicateClass?.className}>`,
                     inbuilt: false,
                     className: duplicateClass?.className
                 };
@@ -55,7 +56,7 @@ module.exports = class JsonToDartClassInfo {
 
                 this.#classData.class.push(data)
                 return {
-                    dataType:className, //`Map<${this.#getMapKeyDataType(data.parameters)},${className}>`,
+                    dataType: className, //`Map<${this.#getMapKeyDataType(data.parameters)},${className}>`,
                     inbuilt: false,
                     className: className
                 };
@@ -73,12 +74,12 @@ module.exports = class JsonToDartClassInfo {
                     className: ""
                 };
             case "number":
-                if(this.#isInteger(dataType))
-                return {
-                    dataType: "int",
-                    inbuilt: true,
-                    className: ""
-                };
+                if (this.#isInteger(dataType))
+                    return {
+                        dataType: "int",
+                        inbuilt: true,
+                        className: ""
+                    };
                 return {
                     dataType: "double",
                     inbuilt: true,
@@ -106,7 +107,7 @@ module.exports = class JsonToDartClassInfo {
                     className: ""
                 }
             default:
-                return  {
+                return {
                     dataType: "dynamic",
                     inbuilt: true,
                     className: ""
@@ -118,7 +119,7 @@ module.exports = class JsonToDartClassInfo {
         return parameters[0].dataType?.replace("?", "")
     }
     #handelList(dataType, key) {
-        if(dataType.length <=0) return {
+        if (dataType.length <= 0) return {
             dataType: `List<dynamic>`,
             inbuilt: true,
             className: ""
@@ -142,12 +143,12 @@ module.exports = class JsonToDartClassInfo {
         return (result.charAt(0).toUpperCase() + result.slice(1))
     }
     #replaceUnderScoreWithTitle(name) {
-        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~{0-9}]/;
+        var format = /[`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~{0-9}]/;
         const firstChar = name.charAt(0)
         if (format.test(firstChar)) {
             name = name.replace(firstChar, "")
         }
-        let data = name.split(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/);
+        let data = name.split(/[`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/);
         let finalString = "";
         if (data.length > 0) {
             data.map((p, index) => {
@@ -162,9 +163,9 @@ module.exports = class JsonToDartClassInfo {
         return array.find((data) => JSON.stringify(data.parameters) == jsonData)
     }
 
-    
+
     #isInteger(n) {
-        return n === +n && n === (n|0);
+        return n === +n && n === (n | 0);
     }
 }
 
