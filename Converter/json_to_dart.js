@@ -8,7 +8,7 @@ class ${className} {
             return `${myClass.mutable ? "" : "final"} ${parameter.dataType} ${removeUnderscore(parameter.name)};`
         }).join("\n")
             }
-    ${myClass.mutable ? "" : "const"} ${className}({${myClass.parameters.map((parameter) => `required this.${removeUnderscore(parameter.name)}`).join(", ")
+    ${myClass.mutable ? "" : "const"} ${className}({${myClass.parameters.map((parameter) => `${`${parameter.name}`.startsWith('_')?'': 'required'} this.${removeUnderscore(parameter.name)}`).join(", ")
             },});
 
     ${className} copyWith({
