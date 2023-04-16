@@ -81,10 +81,12 @@ function removeQuestion(str) {
 
 function toJsonForClass(parameter) {
     if (parameter.dataType.startsWith("List")) {
-        return `${removeUnderscore(parameter.name)}.map<Map<String,dynamic>>((data)=> data.toJson()).toList()`
-    } else if (parameter.dataType.startsWith("Map")) {
-        var paranam = `${removeUnderscore(parameter.name)}['${removeUnderscore(parameter.parameterName)}']`;
-        return `${paranam} == null? '':${paranam}.toJson()`
+        var sWU = `${parameter.name}`.startsWith('_');
+        var param = removeUnderscore(parameter.name);
+        return `${sWU ? `${param} == null ? null :` : ''}${param}${sWU ? '!' : ''}.map<Map<String,dynamic>>((data)=> data.toJson()).toList()`
+    } else if (`${parameter.dataType}`.endsWith("?")) {
+        var paranam = `${removeUnderscore(parameter.name)}`;
+        return `${paranam} == null? null:${paranam}!.toJson()`
     }
     return `${removeUnderscore(parameter.name)}.toJson()`
 }
@@ -112,9 +114,8 @@ function nullDataType(parameter) {
 }
 
 function isOptionalDataType(dataType) {
-    console.log(dataType);
-    // return dataType.endsWith("?")
-    return true
+    return dataType.endsWith("?")
+    // return dataType.startsWith('_')
 }
 function checkType(variable) {
     var regExp = RegExp(/^List<[a-zA-Z]+[\?]{0,1}>[\?]{0,1}$/);
@@ -137,7 +138,7 @@ function checkType(variable) {
         return 'null';
     }
     else {
-        return `${variable}.fromJson({})`;
+        return `${removeQuestion(variable)}.fromJson({})`;
     }
 }
 function removeUnderscore(str) {

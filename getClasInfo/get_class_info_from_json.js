@@ -139,16 +139,16 @@ module.exports = class JsonToDartClassInfo {
     }
     #getDartClassName(name) {
         if (name == null || name == "") throw Error("Please Enter a Valid Parameter Name")
-        let result = this.#replaceUnderScoreWithTitle(name)
+        let result = this.#replaceUnderScoreWithTitle(name, true)
         return (result.charAt(0).toUpperCase() + result.slice(1))
     }
-    #replaceUnderScoreWithTitle(name) {
-        var format = /[`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~{0-9}]/;
+    #replaceUnderScoreWithTitle(name, isClassName = false) {
+        var format = isClassName ? /[`!@#$%^&*()+\-_=\[\]{};':"\\|,.<>\/?~{0-9}]/ : /[`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~{0-9}]/;
         const firstChar = name.charAt(0)
         if (format.test(firstChar)) {
             name = name.replace(firstChar, "")
         }
-        let data = name.split(/[`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/);
+        let data = name.split(isClassName ? /[`!@#$%^&*()+\-_=\[\]{};':"\\|,.<>\/?~]/ : /[`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/);
         let finalString = "";
         if (data.length > 0) {
             data.map((p, index) => {
