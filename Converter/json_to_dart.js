@@ -9,7 +9,7 @@ class ${className} {
         }).join("\n")
             }
     ${myClass.mutable ? "" : "const"} ${className}({${myClass.parameters.map((parameter) => `required this.${removeUnderscore(parameter.name)}`).join(", ")
-            }});
+            },});
 
     ${className} copyWith({
         ${myClass.parameters.map((parameter) => {
@@ -18,32 +18,30 @@ class ${className} {
                 return `${endsWith ? parameter.dataType : paramDtype} ${removeUnderscore(parameter.name)}`;
 
             }).join(", ")
-            }}){
+            },}){
     return ${className}(
             ${myClass.parameters.map((parameter) => `${removeUnderscore(parameter.name)}:${removeUnderscore(parameter.name)} ?? this.${removeUnderscore(parameter.name)}`).join(",\n")
-            });
+            },);
     }
         
     Map<String,Object?> toJson(){
         return {
             ${myClass.parameters.map((parameter) => `'${removeUnderscore(parameter.parameterName)}': ${parameter.inbuilt ? removeUnderscore(parameter.name) : toJsonForClass(parameter)}`).join(",\n")
 
-            }};
+            },};
 }
 
 static ${className} fromJson(Map<String , Object?> json){
     return ${className}(
             ${myClass.parameters.map((parameter) => {
                 return `${removeUnderscore(parameter.name)}:${parameter.inbuilt ? isOptionalDataType(parameter.dataType) ? parameter.isDefault ? defaultValueParameter(parameter) : nullDataType(parameter) : parameter.isDefault ? defaultValueParameter(parameter) : notOptionalDataType(parameter) : `${fromJsonForClass(parameter)}`}`;
-            }).join(",\n")}
+            }).join(",\n")},
     );
 }
 
 @override
 String toString(){
-    return '''${className}(
-                ${myClass.parameters.map((parameter) => `${removeUnderscore(parameter.name)}:${parameter.inbuilt ? `$${removeUnderscore(parameter.name)}` : `\${${removeUnderscore(parameter.name)}.toString()\}`}`).join(",\n")}
-    ) ''';
+    return '${className}(${myClass.parameters.map((parameter) => `${removeUnderscore(parameter.name)}:${parameter.inbuilt ? `$${removeUnderscore(parameter.name)}` : `\${${removeUnderscore(parameter.name)}.toString()\}`}`).join(", ")})';
 }
 
 @override
@@ -57,7 +55,7 @@ bool operator ==(Object other){
 int get hashCode {
     return Object.hash(
                 runtimeType,
-                ${myClass.parameters.length < 20 ? myClass.parameters.map((parameter) => removeUnderscore(parameter.name)).join(", \n") : myClass.parameters.slice(0, 19).map((parameter) => removeUnderscore(parameter.name)).join(", \n")}
+                ${myClass.parameters.length < 20 ? myClass.parameters.map((parameter) => removeUnderscore(parameter.name)).join(", \n") : myClass.parameters.slice(0, 19).map((parameter) => removeUnderscore(parameter.name)).join(", \n")},
     );
 }
     
