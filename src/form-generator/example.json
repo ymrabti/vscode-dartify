@@ -1,0 +1,19 @@
+{
+    "nom": "DOLIPRANE",
+    "prixBR": 128.33,
+    "_code": 12235,
+    "_type": "PARACITAMOL",
+    "_forme": "Forme1",
+    "_posologie": "Posologie de med",
+    "_quantiteEnStock": 150,
+    "_isInStock": true,
+    "_prixPH": "younesmrabti@gmail.com",
+    "_ppv": 123.45,
+    "princepsGenerique": "Medicament generique",
+    "dateTimeExpiration": "2024-12-12T10:30",
+    "_dateTimeAchatMedicament": "2020-12-12T11:30:59",
+    "password": "***********",
+    "_dosage": 125.0,
+    "_uniteDose": "mg",
+    "_tauxDeRemboursement": 70
+}
