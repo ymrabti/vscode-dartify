@@ -1,15 +1,53 @@
 import { writeFile } from 'fs';
-import { generateTheModel } from './model';
+import { FormGeneratedModel, generateTheModel } from './model';
 import * as exampleData from './example.json';
-import { getFormInputElement } from './form-fields';
+import { submitButton } from './submit-button';
+import { getFormInputElement } from './input-fields';
+import { enumerable } from './enums';
+function generateMapData(models: FormGeneratedModel[]): string {
+  return models.map(e => `'${e.name}': ${e.name}.value,`).join('\n');
 
+}
 function _generateForm(json: any) {
-  const models = generateTheModel(json);
+  const models = generateTheModel(json).sort((a, b) => {
+    var aa = a.required ? 1 : 0;
+    var bb = b.required ? 1 : 0;
+    return bb - aa;
+  });
   return `
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:get/get.dart';
 
 
+Widget labelRichText({required bool required, required String text, required BuildContext context, TextStyle? textStyle}) {
+  return RichText(
+    locale: Get.locale,
+    text: TextSpan(
+      locale: Get.locale,
+      text: text,
+      style: textStyle ?? Theme.of(context).textTheme.titleLarge,
+      children: [
+        if (required)
+          TextSpan(
+            locale: Get.locale,
+            text: '*',
+            style: const TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+            ),
+          ),
+        
+      ],
+    ),
+    textScaleFactor: 1,
+    maxLines: null,
+    strutStyle: const StrutStyle(fontWeight: FontWeight.bold),
+    overflow: TextOverflow.fade,
+  );
+}
+${models.filter(e => e.isList).map(e => enumerable(e.value, e.name)).join('')}
 class FormPlusGenerated extends HookWidget {
   final GlobalKey<FormState> formKey;
 
@@ -23,19 +61,20 @@ class FormPlusGenerated extends HookWidget {
   Widget build(BuildContext context) {
     ${models.map(e => {
     return `ValueNotifier<${e.dartType}> ${e.name} = useState<${e.dartType}>(${!e.required ? 'null' : e.defaultValue});`;
-  }).join('/n')}
+  }).join('\n')}
 
     
-    var formElements = [
+    List<Widget> formElements = [
       ${models.map(e => {
     return getFormInputElement({ element: e });
-  }).join('/n')}
+  }).join('\n')}
+  ${submitButton(generateMapData(models))}
     ].map(
       (e) => Padding(
         padding: const EdgeInsets.all(8),
         child: e,
       ),
-    );
+    ).toList();
     return Form(
       key: formKey,
       autovalidateMode: AutovalidateMode.always,

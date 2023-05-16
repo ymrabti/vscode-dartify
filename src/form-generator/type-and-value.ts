@@ -1,4 +1,4 @@
-
+import { toPascalCase } from "../functions";
 
 export enum DartInputs {
     text = 'text',
@@ -52,4 +52,48 @@ export function getInputtype(variableValue: any) {
     // 
 
     return dataType;
+}
+export function getDatatype(variableValue: any, name: string) {
+    let dataType = 'dynamic';
+    if (typeof variableValue === 'number') {
+        if (Number.isInteger(variableValue)) {
+            dataType = 'int';
+        } else {
+            dataType = 'double';
+        }
+    }
+    else if (typeof variableValue === 'string') {
+        if (isDate(`${variableValue}`)) {
+            return 'DateTime';
+        }
+        dataType = 'String';
+    }
+    else if (typeof variableValue === 'boolean') {
+        dataType = 'bool';
+    }
+    if (Array.isArray(variableValue)) {
+        dataType = toPascalCase(name);
+    }
+    return dataType;
+}
+export function getDefaultValue(variableValue: any, name: string) {
+    let defaultValue = '';
+    if (typeof variableValue === 'number') {
+        if (Number.isInteger(variableValue)) {
+            defaultValue = '0';
+        } else {
+            defaultValue = '0.0';
+        }
+    } else if (typeof variableValue === 'string') {
+        if (isDate(`${variableValue}`)) {
+            return 'DateTime.now()';
+        }
+        defaultValue = '""';
+    } else if (typeof variableValue === 'boolean') {
+        defaultValue = 'false';
+    }
+    if (Array.isArray(variableValue)) {
+        defaultValue = `${toPascalCase(name)}.select`;
+    }
+    return defaultValue;
 }

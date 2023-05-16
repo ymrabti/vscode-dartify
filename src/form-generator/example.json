@@ -1,19 +1,35 @@
 {
-    "nom": "DOLIPRANE",
+    "stringA": "DOLIPRANE",
+    "_nulString": "Forme1",
+    "quantiteEnStock": 150,
+    "_code": 12235, 
     "prixBR": 128.33,
-    "_code": 12235,
-    "_type": "PARACITAMOL",
-    "_forme": "Forme1",
-    "_posologie": "Posologie de med",
-    "_quantiteEnStock": 150,
-    "_isInStock": true,
-    "_prixPH": "younesmrabti@gmail.com",
-    "_ppv": 123.45,
-    "princepsGenerique": "Medicament generique",
+    "_dosage": 125.0,
     "dateTimeExpiration": "2024-12-12T10:30",
     "_dateTimeAchatMedicament": "2020-12-12T11:30:59",
     "password": "***********",
-    "_dosage": 125.0,
+    "_password1": "***********",
+    "email": "younesmrabti@gmail.com",
+    "_email2": "younesmrabti@gmail.com",
+    "phone": "+212603671780",
+    "_phone2": "+212603671780",
+    "lien": "https://www.exmple.com/",
+    "_lien2": "https://www.exmple.com/",
+    "isInStock": true,
+    "_ppv": false,
+    
+    "princepsGenerique": "Medicament generique",
+    "typed": [
+        "PARACITAMOL",
+        "Extasia",
+        "Panaderia Lorém"
+    ],
+    "_typeN": [
+        "Petit lait",
+        "Déjeuner",
+        "Payî Droma"
+    ],
+    "_posologie": "Posologie de med",
     "_uniteDose": "mg",
     "_tauxDeRemboursement": 70
 }

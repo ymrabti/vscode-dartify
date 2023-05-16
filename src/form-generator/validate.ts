@@ -1,8 +1,8 @@
 import { FormGeneratedModel } from "./model";
-import { DartInputs } from "./types/input-type";
+import { DartInputs } from "./type-and-value";
 
-export function intValidator() {
-    return  `
+function intValidator() {
+    return `
         if (!value.isNum) {
             return 'Error';
         }
@@ -12,7 +12,7 @@ export function intValidator() {
         }
     `;
 }
-export function doubleValidator() {
+function doubleValidator() {
     return `
         if (!value.isNum) {
             return 'Error';
@@ -23,7 +23,7 @@ export function doubleValidator() {
         }
     `;
 }
-export function datetimeValidator() {
+function datetimeValidator() {
     return `
         if (!value.isDateTime) {
             return 'Error';
@@ -34,28 +34,28 @@ export function datetimeValidator() {
         }
     `;
 }
-export function emailValidator() {
+function emailValidator() {
     return `
         if (!value.isEmail) {
             return 'Error';
         }
     `;
 }
-export function urlValidator() {
+function urlValidator() {
     return `
-        if (!value.isUrl) {
+        if (!value.isURL) {
             return 'Error';
         }
     `;
 }
-export function phoneValidator() {
+function phoneValidator() {
     return `
         if (!value.isPhoneNumber) {
             return 'Error';
         }
     `;
 }
-export function passwordValidator() {
+function passwordValidator() {
     return `
         if (value.length < 8 || value.isAlphabetOnly) {
             return 'Error';
@@ -89,15 +89,15 @@ function getValidatorByInput(element: FormGeneratedModel) {
     }
 }
 function getOtherValidators(element: FormGeneratedModel) {
-    if(element.isPassword) {return passwordValidator();}
+    if (element.isPassword) { return passwordValidator(); }
+    else { return ''; }
 }
 
-export function validator(element: FormGeneratedModel){
+export function validator(element: FormGeneratedModel) {
     return `validator: (value) {
-        ${element.required?
-        `if (value == null) return 'Error';
-        if (value.isEmpty) return 'Error';`:''
-    }
+        ${element.required ?
+            `if (value == null) return 'Error';
+        if (value.isEmpty) return 'Error';`: 'if (value == null) return  null;'}
 
         ${getValidatorByType(element)}
         ${getValidatorByInput(element)}
