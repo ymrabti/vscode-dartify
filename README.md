@@ -20,7 +20,7 @@ Welcome to json to dart (Dartify), yet another code generator for data-classes.
 
 ## Command to execute is
 
-### (win or cmd + shift + p)  then enter "DARTIFY" Or "ctrl+shift+alt+t"
+### ((ctrl or cmd) + shift + p) or F1  then enter "DARTIFY" Or "ctrl + shift + alt + t"
 
 **_NOTE:_**  key board shortcut is "ctrl+shift+alt+t"
 
@@ -55,7 +55,7 @@ class User {
     return {'name': name, 'age': age, 'isAdmin': isAdmin, 'order_ids': orderIds};
   }
 
-  static User fromJson(Map<String, Object?> json) {
+  factory User.fromJson(Map<String, Object?> json) {
     return User(name: json['name'] == null ? "" : json['name'] as String, age: json['age'] == null ? "" : json['age'] as String, isAdmin: json['isAdmin'] == null ? false : json['isAdmin'] as bool, orderIds: json['order_ids'] == null ? [] : json['order_ids'] as List<int>);
   }
 
@@ -115,17 +115,17 @@ class Product {
     return {'name': name, 'age': age, 'isAdmin': isAdmin, 'order': order == null ? '' : order!.toJson()};
   }
 
-  static Product fromJson(Map<String, Object?> json) {
+  factory Product.fromJson(Map<String, Object?> json) {
     return Product(name: json['name'] == null ? "" : json['name'] as String, age: json['age'] == null ? 0 : json['age'] as int, isAdmin: json['isAdmin'] == null ? false : json['isAdmin'] as bool, order: json['order'] == null ? null : Order.fromJson(json['order'] as Map<String, Object?>));
   }
 
   @override
   String toString() {
     return '''Product(
-                name:$name,
-age:$age,
-isAdmin:$isAdmin,
-order:${order.toString()}
+    name:$name,
+    age:$age,
+    isAdmin:$isAdmin,
+    order:${order.toString()}
     ) ''';
   }
 
@@ -154,7 +154,7 @@ class Order {
     return {'order_id': orderId, 'product_name': productName, 'product_price': productPrice};
   }
 
-  static Order fromJson(Map<String, Object?> json) {
+  factory Order.fromJson(Map<String, Object?> json) {
     return Order(orderId: json['order_id'] == null ? 0 : json['order_id'] as int, productName: json['product_name'] == null ? "" : json['product_name'] as String, productPrice: json['product_price'] == null ? 0.0 : json['product_price'] as double);
   }
 

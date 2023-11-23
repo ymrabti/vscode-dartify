@@ -1,4 +1,17 @@
 {
-    "workbench.editor.untitled.hint": "text",
-    "workbench.editor.untitled.labelFormat": "name"
+    "workbench.editor.untitled.labelFormat": "name",
+    "workbench.editor.empty.hint": "text",
+    "editor.fontSize": 15,
+    "editor.fontFamily": "Fira Code",
+    "editor.fontLigatures": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        ".vscode": true,
+        "**/Thumbs.db": true
+    },
+    "editor.fontWeight": "bold"
 }

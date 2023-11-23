@@ -1,6 +1,6 @@
 const vscode = require('vscode');
-const generateClass = require("./Converter/json_to_dart")
-const JsonToDartClassInfo = require("./getClasInfo/get_class_info_from_json")
+const generateClass = require("./src/json_to_dart")
+const JsonToDartClassInfo = require("./src/get_class_info_from_json")
 
 /**
  * @param {vscode.ExtensionContext} context

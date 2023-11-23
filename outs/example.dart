@@ -15,5 +15,7 @@
             "ville": "empty data"
         }
     ],
-    "_numberNullable": 20.65
+    "_numberNullable": 20.65,
+    "nnotKnown": null,
+    "_notKnown": null
 }

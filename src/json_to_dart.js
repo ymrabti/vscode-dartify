@@ -3,22 +3,29 @@ module.exports = function generateClass(classInfo) {
     return `${classInfo.class.map((myClass) => {
         const className = myClass.className
         return `
+
 class ${className} {
-    ${myClass.parameters.map((parameter) => {
-            return `${myClass.mutable ? "" : "final"} ${parameter.dataType} ${removeUnderscore(parameter.name)};`
+${myClass.parameters.map((parameter) => {
+            const paramName = removeUnderscore(parameter.name)
+            return `\t${myClass.mutable ? "" : "final"} ${parameter.dataType} ${paramName};`
         }).join("\n")
             }
-    ${myClass.mutable ? "" : "const"} ${className}({${myClass.parameters.map((parameter) => `${`${parameter.name}`.startsWith('_')?'': 'required'} this.${removeUnderscore(parameter.name)}`).join(", ")
-            },});
+    ${myClass.mutable ? "" : "const"} ${className}({
+        ${myClass.parameters.map((parameter) => {
+            const reaq = `${parameter.name}`.startsWith('_') ? '' : 'required'
+            return `\t\t${reaq} this.${removeUnderscore(parameter.name)},`
+        }).join("\n")
+    }});
 
     ${className} copyWith({
         ${myClass.parameters.map((parameter) => {
                 const endsWith = parameter.dataType.endsWith("?")
-                const paramDtype = parameter.dataType + "?"
-                return `${endsWith ? parameter.dataType : paramDtype} ${removeUnderscore(parameter.name)}`;
+            const dataType = parameter.dataType
+                const paramDtype = dataType + (dataType =="dynamic"?"": "?")
+                return `\t\t${endsWith ? dataType : paramDtype} ${removeUnderscore(parameter.name)}, `;
 
-            }).join(", ")
-            },}){
+            }).join("\n")
+    }}){
     return ${className}(
             ${myClass.parameters.map((parameter) => `${removeUnderscore(parameter.name)}:${removeUnderscore(parameter.name)} ?? this.${removeUnderscore(parameter.name)}`).join(",\n")
             },);
@@ -31,7 +38,7 @@ class ${className} {
             },};
 }
 
-static ${className} fromJson(Map<String , Object?> json){
+factory ${className}.fromJson(Map<String , Object?> json){
     return ${className}(
             ${myClass.parameters.map((parameter) => {
                 return `${removeUnderscore(parameter.name)}:${parameter.inbuilt ? isOptionalDataType(parameter.dataType) ? parameter.isDefault ? defaultValueParameter(parameter) : nullDataType(parameter) : parameter.isDefault ? defaultValueParameter(parameter) : notOptionalDataType(parameter) : `${fromJsonForClass(parameter)}`}`;
