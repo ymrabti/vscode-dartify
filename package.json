@@ -2,11 +2,11 @@
   "name": "dartifyjson",
   "displayName": "DARTIFY",
   "description": "convert JSON data into DART data model",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "scripts": {
     "test-automation": "node converter/generate_model",
     "pretest": "npm run lint",
-    "buildAndInstall": "vsce package -o outs && code --install-extension outs/dartifyjson-0.1.10.vsix",
+    "buildAndInstall": "vsce package -o outs && code --install-extension outs/dartifyjson-0.1.12.vsix",
     "test": "node ./test/runTest.js"
   },
   "engines": {

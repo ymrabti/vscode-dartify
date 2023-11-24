@@ -12,9 +12,9 @@ module.exports = class JsonToDartClassInfo {
         this.DartifyClassData.class.push(this.getClassInfo(json, className))
     }
 
-    getClassInfo(data, className) {
+    getClassInfo(data, className = "DartifyGeneratedDataModel") {
         let classDetails = {
-            className: className ?? "DartifyGeneratedDataModel",
+            className: className,
             mutable: false,
             parameters: []
         }
@@ -24,16 +24,14 @@ module.exports = class JsonToDartClassInfo {
                 const element = data[key];
                 let parameterName = this.getDartParameterName(key)
                 let className = this.handelMap(element, key)
-                let dataTypeInfo = className ?? this.getDartDataType(element, key)
-
                 const suffix = parameterName.startsWith('_') ? '?' : '';
                 classDetails.parameters.push({
                     required: false,
                     name: parameterName,
                     parameterName: key,
-                    dataType: dataTypeInfo?.dataType === "dynamic" ? "dynamic" : `${dataTypeInfo?.dataType}${suffix}`,
-                    inbuilt: dataTypeInfo.inbuilt ?? false,
-                    className: dataTypeInfo.className ?? ""
+                    dataType: className.dataType === "dynamic" ? "dynamic" : `${className.dataType}${suffix}`,
+                    inbuilt: className.inbuilt ,
+                    className: className.className 
                 })
             }
         }
@@ -48,9 +46,9 @@ module.exports = class JsonToDartClassInfo {
             let duplicateClass = this.checkIsDuplicateClass(this.DartifyClassData.class, data)
             if (duplicateClass != null) {
                 return {
-                    dataType: duplicateClass?.className, //`Map<${this.getMapKeyDataType(duplicateClass?.parameters)},${duplicateClass?.className}>`,
+                    dataType: duplicateClass.className, //`Map<${this.getMapKeyDataType(duplicateClass?.parameters)},${duplicateClass?.className}>`,
                     inbuilt: false,
-                    className: duplicateClass?.className
+                    className: duplicateClass.className
                 };
 
             } else {
@@ -63,7 +61,7 @@ module.exports = class JsonToDartClassInfo {
                 };
             }
         }
-        return null
+        return this.getDartDataType(null, key);
     }
 
     getDartDataType(dataType, key) {
@@ -116,8 +114,8 @@ module.exports = class JsonToDartClassInfo {
         }
     }
     getMapKeyDataType(parameters) {
-        if (parameters == null || parameters?.length <= 0) return 'String';
-        return parameters[0].dataType?.replace("?", "")
+        if (parameters == null || parameters.length <= 0) return 'String';
+        return parameters[0].dataType.replace("?", "")
     }
     handelList(dataType, key) {
         if (dataType.length <= 0) return {
@@ -126,11 +124,11 @@ module.exports = class JsonToDartClassInfo {
             className: ""
         }
         let className = this.handelMap(dataType[0], key)
-        let dataTypeInfo = className ?? this.getDartDataType(dataType[0], key)
+        let dataTypeInfo = className /* ?? this.getDartDataType(dataType[0], key) */
         return {
-            dataType: `List<${dataTypeInfo?.dataType}>`,
+            dataType: `List<${dataTypeInfo.dataType}>`,
             inbuilt: dataTypeInfo.inbuilt,
-            className: dataTypeInfo?.className
+            className: dataTypeInfo.className
         }
     }
 
