@@ -4,21 +4,59 @@ import * as exampleData from './example.json';
 import { submitButton } from './submit-button';
 import { getFormInputElement } from './input-fields';
 import { enumerable } from './enums';
-function generateMapData(models: FormGeneratedModel[]): string {
-  return models.map(e => `'${e.name}': ${e.name}.value,`).join('\n');
+import { datePicker, datetimePicker, timePicker } from './pickers';
 
+function toMap(e: FormGeneratedModel): string {
+  const value = `${e.name}Value`;
+  if (e.dartType === 'DateTime') {
+    return `${value}.toStringFormat()`;
+  }
+  else if (e.dartType === 'DateTime?') {
+    return `${value} == null ? null : ${value}.toStringFormat()`;
+  }
+  else if (e.dartType === 'TimeOfDay?') { return `${value}?.format(context)`; }
+  else if (e.dartType === 'TimeOfDay') { return `${value}.format(context)`; }
+  else if (e.isDropdown) {
+    return `${!e.required ? `${value} == null ? null : ` : ''}${value}.label`;
+  }
+  else { return value; }
 }
+
+
+function generateMapData(models: FormGeneratedModel[]): string {
+  return models.map(e => `'${e.name}': ${toMap(e)}, // ${e.dartType}`).join('\n');
+}
+
 function _generateForm(json: any) {
   const models = generateTheModel(json).sort((a, b) => {
     var aa = a.required ? 1 : 0;
     var bb = b.required ? 1 : 0;
     return bb - aa;
   });
+  const timeElms = models.filter(e => ['TimeOfDay', 'TimeOfDay[]', 'DateTime', 'DateTime[]'].includes(e.dartType)).length;
+  const dateElms = models.filter(e => ['DateTime', 'DateTime[]'].includes(e.dartType)).length;
   return `
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
+extension DateTimeX on DateTime {
+  bool get isDateOnly {
+    return hour == 0 && minute == 0 && millisecond == 0 && microsecond == 0;
+  }
+
+  bool get isTimeOnly {
+    return year == 0 && month == 0 && day == 0;
+  }
+
+  String toStringFormat() {
+    return DateFormat(isDateOnly ? 'yyyy-MMMM-dddd' : (isTimeOnly ? 'Hm' : 'yyyy-MMMM-dddd')).format(this);
+  }
+}
+
+${timeElms !== 0 ? timePicker() : ''}
+${dateElms !== 0 ? datePicker() : ''}
 
 Widget labelRichText({required bool required, required String text, required BuildContext context, TextStyle? textStyle}) {
   return RichText(
@@ -47,15 +85,22 @@ Widget labelRichText({required bool required, required String text, required Bui
     overflow: TextOverflow.fade,
   );
 }
-${models.filter(e => e.isList).map(e => enumerable(e.value, e.name)).join('')}
-class FormPlusGenerated extends HookWidget {
-  final GlobalKey<FormState> formKey;
+${models.filter(e => e.isDropdown).map(e => enumerable(e.value, e.name)).join('')}
+class FormPlusGenerated extends StatefulHookWidget {
+  const FormPlusGenerated({super.key});
 
+  @override
+  State<StatefulWidget> createState() => _FormPlusGeneratedState();
+}
 
-  const FormPlusGenerated({
-    Key? key,
-    required this.formKey,
-  }) : super(key: key);
+class _FormPlusGeneratedState extends State<StatefulWidget> {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  ${models.map(e => {
+    return `final TextEditingController ${e.name}TextController = TextEditingController();`;
+  }).join('\n')}
+
+  ${models.filter(e => !e.isPureDate).length !== 0 ? datetimePicker() : ''}
+
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +113,7 @@ class FormPlusGenerated extends HookWidget {
       ${models.map(e => {
     return getFormInputElement({ element: e });
   }).join('\n')}
-  ${submitButton(generateMapData(models))}
+  ${submitButton(generateMapData(models), models.map(e => `${e.dartType} ${e.name}Value = ${e.name}.value;`).join('\n'))}
     ].map(
       (e) => Padding(
         padding: const EdgeInsets.all(8),
@@ -95,7 +140,7 @@ class FormPlusGenerated extends HookWidget {
 }
 
 const dartCode = _generateForm(exampleData);
-writeFile('C:/Users/dell3/Documents/Documents$4/Driving Code App/lib/automated.dart',
+writeFile('C:/Users/USER/Coding/Flutter/Driving Code App/lib/automated.dart',
   dartCode, (err) => {
     if (err) {
       console.error(err);

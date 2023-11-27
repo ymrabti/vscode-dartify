@@ -1,4 +1,5 @@
-import { toPascalCase } from "../functions";
+import { isDate, isTimeOfDay, toPascalCase } from "../functions";
+import { FormGeneratedModel } from "./model";
 
 export enum DartInputs {
     text = 'text',
@@ -16,10 +17,6 @@ export enum DartInputs {
 };
 
 
-export function isDate(str: string): boolean {
-    const timestamp = Date.parse(str);
-    return !isNaN(timestamp);
-}
 export function getInputtype(variableValue: any) {
     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
     const urlRegex = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
@@ -31,7 +28,7 @@ export function getInputtype(variableValue: any) {
     }
     // 
     else if (typeof variableValue === 'string') {
-        if (isDate(`${variableValue}`)) {
+        if (isDate(`${variableValue}`) || isTimeOfDay(`${variableValue}`)) {
             return `TextInputType.${DartInputs.datetime}`;
         }
         else if (variableValue === '*'.repeat(variableValue.length)) {
@@ -53,47 +50,26 @@ export function getInputtype(variableValue: any) {
 
     return dataType;
 }
-export function getDatatype(variableValue: any, name: string) {
-    let dataType = 'dynamic';
-    if (typeof variableValue === 'number') {
-        if (Number.isInteger(variableValue)) {
-            dataType = 'int';
+export function getDefaultValue(value: any, name: string,isDropdown:boolean) {
+    if (typeof value === 'number') {
+        if (Number.isInteger(value)) {
+            return '0';
         } else {
-            dataType = 'double';
+            return '0.0';
         }
-    }
-    else if (typeof variableValue === 'string') {
-        if (isDate(`${variableValue}`)) {
-            return 'DateTime';
-        }
-        dataType = 'String';
-    }
-    else if (typeof variableValue === 'boolean') {
-        dataType = 'bool';
-    }
-    if (Array.isArray(variableValue)) {
-        dataType = toPascalCase(name);
-    }
-    return dataType;
-}
-export function getDefaultValue(variableValue: any, name: string) {
-    let defaultValue = '';
-    if (typeof variableValue === 'number') {
-        if (Number.isInteger(variableValue)) {
-            defaultValue = '0';
-        } else {
-            defaultValue = '0.0';
-        }
-    } else if (typeof variableValue === 'string') {
-        if (isDate(`${variableValue}`)) {
+    } else if (typeof value === 'string') {
+        if (isDate(`${value}`)) {
             return 'DateTime.now()';
         }
-        defaultValue = '""';
-    } else if (typeof variableValue === 'boolean') {
-        defaultValue = 'false';
+        if (isTimeOfDay(`${value}`)) {
+            return 'TimeOfDay.now()';
+        }
+        return '""';
+    } else if (typeof value === 'boolean') {
+        return 'false';
     }
-    if (Array.isArray(variableValue)) {
-        defaultValue = `${toPascalCase(name)}.select`;
+    if (isDropdown) {
+        return `${toPascalCase(name)}.select`;
     }
-    return defaultValue;
+    return 'null';
 }

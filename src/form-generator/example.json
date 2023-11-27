@@ -2,11 +2,13 @@
     "stringA": "DOLIPRANE",
     "_nulString": "Forme1",
     "quantiteEnStock": 150,
-    "_code": 12235, 
+    "_code": 12235,
     "prixBR": 128.33,
     "_dosage": 125.0,
     "dateTimeExpiration": "2024-12-12T10:30",
     "_dateTimeAchatMedicament": "2020-12-12T11:30:59",
+    "pureDate": "2024-12-12",
+    "_datePure": "2020-12-12",
     "password": "***********",
     "_password1": "***********",
     "email": "younesmrabti@gmail.com",
@@ -17,7 +19,6 @@
     "_lien2": "https://www.exmple.com/",
     "isInStock": true,
     "_ppv": false,
-    
     "princepsGenerique": "Medicament generique",
     "typed": [
         "PARACITAMOL",
@@ -29,7 +30,15 @@
         "Déjeuner",
         "Payî Droma"
     ],
-    "_posologie": "Posologie de med",
-    "_uniteDose": "mg",
-    "_tauxDeRemboursement": 70
+    "ouverture": "11:30",
+    "_fermeture": "11:30 AM",
+    "rangeDePrix": [
+        20,
+        70
+    ],
+    "minmax": [
+        10,
+        70,
+        12
+    ]
 }

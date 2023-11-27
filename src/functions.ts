@@ -2,7 +2,7 @@ export function convertLettersREGEX(text: string) {
     // Use a regular expression to match all letter derivants
     const regex = /[ÀÁÂÃÄÅàáâãäåÈÉÊËèéêëÌÍÎÏìíîïÒÓÔÕÖØòóôõöøÙÚÛÜùúûüÇçÑñ]/g;
     // Replace all letter derivants with their corresponding letters using a regular expression
-    return text.replace(regex, (char) =>
+    return `${text}`.replace(regex, (char) =>
         // Use a regular expression to determine the corresponding letter for each derivant
         char.replace(/À|Á|Â|Ã|Ä|Å/g, 'A')
             .replace(/à|á|â|ã|ä|å/g, 'a')
@@ -20,6 +20,7 @@ export function convertLettersREGEX(text: string) {
             .replace(/ñ/g, 'n')
     );
 }
+
 export function toSnakeCase(text: string) {
     // Replace all non-alphanumeric characters with a hyphen
     text = convertLettersREGEX(text).replace(/[^a-zA-Z0-9]/g, '_');
@@ -31,6 +32,7 @@ export function toSnakeCase(text: string) {
     text = text.replace(/-{2,}/g, '_');
     return `${text}`.replace(/(_{2,})/g, '_');
 }
+
 export function toCamelCase(mot: string) {
     var str = convertLettersREGEX(mot);
     const replacement = str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
@@ -42,9 +44,16 @@ export function toCamelCase(mot: string) {
 
     return words.join('');
 }
+
+
 export function toPascalCase(str: string) {
     var txt = toCamelCase(str);
     return `${txt}`.charAt(0).toUpperCase() + `${txt}`.slice(1);
+}
+
+export function isDate(str: string): boolean {
+    const timestamp = Date.parse(str);
+    return !isNaN(timestamp);
 }
 
 export function isTimeOfDay(timeString: string): boolean {
@@ -69,3 +78,4 @@ export function isTimeOfDay(timeString: string): boolean {
 
     return date.getHours() === hour && date.getMinutes() === minute;
 }
+// <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Rapper reportedly shoots and kills manager <a href="https://t.co/9p9e6Dm0XY">pic.twitter.com/9p9e6Dm0XY</a></p>&mdash; Daily Loud (@DailyLoud) <a href="https://twitter.com/DailyLoud/status/1726738872380411928?ref_src=twsrc%5Etfw">November 20, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>

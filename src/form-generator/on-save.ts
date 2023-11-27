@@ -1,4 +1,4 @@
-export function datetimeSave(required: boolean, variableName: string) {
+/* export function datetimeSave(required: boolean, variableName: string) {
     return `
           if(value == null) return;
           DateTime? tryParse = DateTime.tryParse(value);
@@ -6,6 +6,14 @@ export function datetimeSave(required: boolean, variableName: string) {
           ${variableName}.value = tryParse;
     `;
 }
+export function timeofdaySave(required: boolean, variableName: string) {
+    return `
+          if(value == null) return;
+          DateTime? tryParse = DateTime.tryParse(value);
+          ${required ? `if (tryParse == null) return;` : ''}
+          ${variableName}.value = tryParse;
+    `;
+} */
 export function intSave(required: boolean, variableName: string) {
     return `
           if(value == null) return;
@@ -33,17 +41,16 @@ export function stringSave(required: boolean, variableName: string) {
 function getSave(typeData: string, required: boolean, name: string) {
     switch (typeData) {
         case 'int':
-            return intSave(required, name);
         case 'int?':
             return intSave(required, name);
         case 'double':
-            return doubleSave(required, name);
         case 'double?':
             return doubleSave(required, name);
         case 'DateTime':
-            return datetimeSave(required, name);
         case 'DateTime?':
-            return datetimeSave(required, name);
+        case 'TimeOfDay':
+        case 'TimeOfDay?':
+            return '';
 
         default:
             return stringSave(required, name);

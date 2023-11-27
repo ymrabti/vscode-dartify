@@ -1,6 +1,6 @@
 
 
-export function submitButton(map: string) {
+export function submitButton(map: string,mapValues: string) {
     return `
         ElevatedButton(
         onPressed: () {
@@ -8,16 +8,17 @@ export function submitButton(map: string) {
           if (currentState == null) return;
           if (currentState.validate()) {
             currentState.save();
+            ${mapValues}
             Map<String, dynamic> data = {
                 ${map}
             };
             debugPrint('$data');
           }
         },
-        child: AbsorbPointer(
+        child: const AbsorbPointer(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Text('Submit'),
               Padding(
                 padding: EdgeInsets.all(12),

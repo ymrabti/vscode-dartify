@@ -2,21 +2,49 @@ import { toPascalCase } from "../functions";
 import { FormGeneratedModel } from "./model";
 import { change } from "./on-change";
 import { save } from "./on-save";
+import { onTap } from "./on-tap";
 import { validator } from "./validate";
 
 export function textFormField(element: FormGeneratedModel) {
+  const numberScale: string = `${element.dartType} ${element.name}Value = ${element.name}.value;
+              ${!element.required ? `if(${element.name}Value == null) return;` : ''}`;
+  const updateController: string = `${element.name}TextController.text = ${element.name}${element.required ? '.v' : 'V'}alue.toString();`;
   return `
         TextFormField(
             keyboardType: ${element.iputType},
-            initialValue: '',
+            ${element.isTextEditingController ? `controller: ${element.name}TextController,` : ''}
             /* ${element.name} */
             ${validator(element)}
             ${save(element.dartType, element.required, element.name)}
-            ${change(element.dartType, element.required, element.name)}
+            ${change(element.dataType, element.required, element.name)}
+            ${onTap(element)}
             decoration: InputDecoration(
                 hintText: '${element.name}',
                 label: labelRichText(text: '${element.name}', context: context, required: ${element.required}),
-                suffix: Container(),
+                ${['int', 'double', 'num'].includes(element.dataType) ? `
+                suffix: ActionChip(
+            onPressed: () {
+              ${element.required ? '' : `${numberScale}`}
+              ${element.name}${element.required ? `.v` : `V`}alue++;
+              ${updateController}
+            },
+            label: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Icon(Icons.add),
+            ),
+          ),
+          prefix: ActionChip(
+            onPressed: () {
+              ${element.required ? '' : `${numberScale}`}
+              ${element.name}${element.required ? `.v` : `V`}alue--;
+              ${updateController}
+            },
+            label: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Icon(Icons.remove),
+            ),
+          ),
+                `: ''} 
             ),
             textInputAction: TextInputAction.next,
         ),
@@ -96,26 +124,28 @@ export function dropdownFormField(e: FormGeneratedModel) {
 }
 // ${element.required ? `initialValue: '${element.defaultValue}',` : ''}
 
-
+function otherFormInputs(e: FormGeneratedModel) {
+  if (e.isDropdown) {
+    return dropdownFormField(e);
+  }
+  else {
+    return '';
+  }
+}
 
 export function getFormInputElement({ element }: { element: FormGeneratedModel }): string {
-  
-  switch (element.dartType) {
+
+  switch (element.dataType) {
     case 'int':
-    case 'int?':
-    case 'double':
-    case 'double?':
     case 'String':
-    case 'String?':
+    case 'double':
     case 'DateTime':
-    case 'DateTime?':
+    case 'TimeOfDay':
       return textFormField(element);
     case 'bool':
-      return boolFormField(element);
-    case 'bool?':
-      return boolNullableFormField(element);
-    
+      return element.required ? boolFormField(element) : boolNullableFormField(element);
+
     default:
-      return dropdownFormField(element);
+      return otherFormInputs(element);
   }
 }

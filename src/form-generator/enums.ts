@@ -4,9 +4,9 @@ export function enumerable(list: string[], name: string): string {
     return `
     
 enum ${toPascalCase(name)} { 
-    select,
-    ${list.map(e => toCamelCase(e)).join(',\n')}
- }
+  select,
+  ${list.map(e => toCamelCase(e)).join(',\n')}
+}
 
 extension ${toPascalCase(name)}X on ${toPascalCase(name)} {
   String get label {
