@@ -5,6 +5,7 @@ import { submitButton } from './submit-button';
 import { getFormInputElement } from './input-fields';
 import { enumerable } from './enums';
 import { datePicker, datetimePicker, timePicker } from './pickers';
+import { resolve } from 'path';
 
 function toMap(e: FormGeneratedModel): string {
   const value = `${e.name}Value`;
@@ -140,7 +141,8 @@ class _FormPlusGeneratedState extends State<StatefulWidget> {
 }
 
 const dartCode = _generateForm(exampleData);
-writeFile('C:/Users/USER/Coding/Flutter/Driving Code App/lib/automated.dart',
+const ppath = 'C:/Users/USER/Coding/Flutter/my-apps/pharmagest/lib/espace_personel/components/auth_screens/screen_signup/';
+writeFile(ppath + 'components/test-forms.dart',
   dartCode, (err) => {
     if (err) {
       console.error(err);
