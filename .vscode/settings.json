@@ -13,5 +13,5 @@
         ".vscode": true,
         "**/Thumbs.db": true
     },
-    "editor.fontWeight": "bold"
+    "editor.fontWeight": "normal"
 }

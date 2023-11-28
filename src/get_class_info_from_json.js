@@ -24,11 +24,11 @@ module.exports = class JsonToDartClassInfo {
                 const element = data[key];
                 let parameterName = this.getDartParameterName(key)
                 let className = this.handelMap(element, key)
-                const suffix = parameterName.startsWith('_') ? '?' : '';
+                const optional = parameterName.startsWith('_');
+                const suffix = optional ? '?' : '';
                 classDetails.parameters.push({
-                    required: false,
-                    name: parameterName,
-                    parameterName: key,
+                    required: !optional,
+                    name: optional ? parameterName.slice(1) :parameterName,
                     dataType: className.dataType === "dynamic" ? "dynamic" : `${className.dataType}${suffix}`,
                     inbuilt: className.inbuilt ,
                     className: className.className 
@@ -46,7 +46,8 @@ module.exports = class JsonToDartClassInfo {
             let duplicateClass = this.checkIsDuplicateClass(this.DartifyClassData.class, data)
             if (duplicateClass != null) {
                 return {
-                    dataType: duplicateClass.className, //`Map<${this.getMapKeyDataType(duplicateClass?.parameters)},${duplicateClass?.className}>`,
+                    dataType: duplicateClass.className, 
+                    //`Map<${this.getMapKeyDataType(duplicateClass?.parameters)},${duplicateClass?.className}>`,
                     inbuilt: false,
                     className: duplicateClass.className
                 };
@@ -55,16 +56,18 @@ module.exports = class JsonToDartClassInfo {
 
                 this.DartifyClassData.class.push(data)
                 return {
-                    dataType: className, //`Map<${this.getMapKeyDataType(data.parameters)},${className}>`,
+                    dataType: className, 
+                    //`Map<${this.getMapKeyDataType(data.parameters)},${className}>`,
                     inbuilt: false,
                     className: className
                 };
             }
         }
-        return this.getDartDataType(null, key);
+        return this.getDartDataType(dataType, key);
     }
 
     getDartDataType(dataType, key) {
+        console.log(`dataType = ${dataType}`);
         switch (typeof (dataType)) {
             case "string":
                 return {
