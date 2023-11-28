@@ -1,5 +1,10 @@
 require('module-alias/register');
-const { test } = require('@src/example');
+
+const yesPlease = 'Yes Please!';
+const nooThanks = 'No Thanks';
 
 
-test()
+module.exports = {
+    yesPlease,
+    nooThanks,
+}

@@ -7,8 +7,15 @@
     },
     "_objectNullable": {
         "id": 1,
-        "ville": "empty data"
+        "ville": "LAND_CONSERVATION"
     },
+    "liste": [
+        {
+            "id": 1,
+            "country": "",
+            "ville": "empty data"
+        }
+    ],
     "_lisNullable": [
         {
             "id": 1,

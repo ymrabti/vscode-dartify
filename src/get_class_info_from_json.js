@@ -67,7 +67,6 @@ module.exports = class JsonToDartClassInfo {
     }
 
     getDartDataType(dataType, key) {
-        console.log(`dataType = ${dataType}`);
         switch (typeof (dataType)) {
             case "string":
                 return {

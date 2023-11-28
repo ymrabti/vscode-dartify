@@ -1,7 +1,14 @@
+const { yesPlease } = require(".");
+
 const listRegExp = RegExp(/^List<[a-zA-Z]+[\?]{0,1}>[\?]{0,1}$/);
-module.exports = function generateClass(classInfo) {
+module.exports = function generateClass(classInfo, genForms) {
     return `
-    /* ${JSON.stringify(classInfo)} */
+    ${genForms === yesPlease ? `
+import "package:flutter_form_builder/flutter_form_builder.dart";
+import "package:gap/gap.dart";
+import "package:pharmagest/lib.dart";
+`: ''}
+    
     ${classInfo.class.map((myClass) => {
         const className = myClass.className
         return `
@@ -35,9 +42,7 @@ ${myClass.parameters.map((parameter) => {
 
             }).join("\n")
             }}){
-    return ${className}(
-            ${myClass.parameters.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name}`).join(",\n")
-            },);
+    return ${className}(${myClass.parameters.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name},`).join("\n")});
     }
         
     Map<String,Object?> toJson(){
@@ -47,14 +52,59 @@ ${myClass.parameters.map((parameter) => {
             },};
 }
 
+${genForms === yesPlease ? `
+static Widget formCreation(GlobalKey formBuilderKey){
+    final formElements = [
+      ${myClass.parameters.map((parameter) => {
+                const paramName = parameter.name
+                const option = !parameter.required ? ',optional: true' : '';
+                return `EPWTemplateFormField(name: ${className}Enum.${paramName}.name ${option}),`
+            }).join("\n")
+                }
+    ];
+    return FormBuilder(
+      key: formBuilderKey,
+      autovalidateMode: AutovalidateMode.always,
+      child: ListView.separated(
+        physics: NeverScrollableScrollPhysics(),
+        separatorBuilder: (context, index) => Gap(getPropHeight(30)),
+        itemBuilder: (context, index) => formElements.elementAt(index),
+        itemCount: formElements.length,
+        shrinkWrap: true,
+      ),
+    );
+}
+Widget formEdition(GlobalKey formBuilderKey){
+    final formElements = [
+      ${myClass.parameters.map((parameter) => {
+                const paramName = parameter.name
+                const option = !parameter.required ? ',optional: true' : '';
+                return `EPWTemplateFormField(name: ${className}Enum.${paramName}.name ${option}),`
+            }).join("\n")
+                }
+    ];
+    return FormBuilder(
+      key: formBuilderKey,
+      autovalidateMode: AutovalidateMode.always,
+      initialValue: toJson(),
+      child: ListView.separated(
+        physics: NeverScrollableScrollPhysics(),
+        separatorBuilder: (context, index) => Gap(getPropHeight(30)),
+        itemBuilder: (context, index) => formElements.elementAt(index),
+        itemCount: formElements.length,
+        shrinkWrap: true,
+      ),
+    );
+}
+`: ''}
+
 factory ${className}.fromJson(Map<String , Object?> json){
     return ${className}(
             ${myClass.parameters.map((parameter) => {
-                const isOptionalDT = isOptionalDataType(parameter.dataType);
-                const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
-                const inBuilt = `${jsonKey} ${isOptionalDT ? '' : `as ${removeQuestion(parameter.dataType)}`}`;
-                return `${parameter.name}:${parameter.inbuilt ? inBuilt : `${fromJsonForClass(parameter, myClass.className)}`}`;
-            }).join(",\n")},
+                    const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
+                    const inBuilt = `${jsonKey} ${`as ${parameter.dataType}`}`;
+                    return `${parameter.name}:${parameter.inbuilt ? inBuilt : `${fromJsonForClass(parameter, myClass.className)}`}`;
+                }).join(",\n")},
     );
 }
 
@@ -98,21 +148,20 @@ function removeQuestion(str) {
 
 function toJsonForClass(parameter) {
     if (listRegExp.test(parameter.dataType)) {
-        var sWU = !parameter.name.required;
+        var optional = !parameter.required ? `?` : '';
         var param = parameter.name;
-        return `${sWU ? `${param} == null ? null :` : ''}${param}${sWU ? '!' : ''}.map<Map<String,dynamic>>((data)=> data.toJson()).toList()`
+        return `${param}${optional}.map<Map<String,dynamic>>((data)=> data.toJson()).toList()`
     } else if (`${parameter.dataType}`.endsWith("?")) {
         var paranam = `${parameter.name}`;
-        return `${paranam} == null? null:${paranam}!.toJson()`
+        return `${paranam}?.toJson()`
     }
     return `${parameter.name}.toJson()`
 }
 function fromJsonForClass(parameter, className) {
-    const cn = className;
-    const asmap = '  as Map<String,Object?>';
-    const jsonKey = `json[${parameter.className}Enum.${parameter.name}.name]`;
+    const asmap = ' as Map<String,Object?>';
+    const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
     const pfj = `${parameter.className}.fromJson`;
-    const pl = `(${jsonKey} as List).map<${cn}>((data)=> ${pfj}(data ${asmap})).toList()`;
+    const pl = `(${jsonKey} as List).map<${parameter.className}>((data)=> ${pfj}(data ${asmap})).toList()`;
     const isOptDataType = isOptionalDataType(parameter.dataType)
     const checkedType = checkType(parameter.dataType)
     if (listRegExp.test(parameter.dataType)) {

@@ -1,7 +1,8 @@
 require('module-alias/register');
 const vscode = require('vscode');
 const generateClass = require("@src/json_to_dart")
-const JsonToDartClassInfo = require("@src/get_class_info_from_json")
+const JsonToDartClassInfo = require("@src/get_class_info_from_json");
+const { yesPlease, nooThanks } = require('@src/index');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -22,13 +23,13 @@ function activate(context) {
 		try {
 			const json = JSON.parse(textSelected.trim());
 			const className = await vscode.window.showInputBox({
-				placeHolder: "Enter class name",
+				placeHolder: "Entry class name",
 				prompt: "Enter class name",
 				value: "DartifyGeneratedCode"
 			})
-			const useForms = await vscode.window.showQuickPick(['Yes Please!', 'No Thanks'], { title: 'Generate Flutter Forms', })
+			const useForms = await vscode.window.showQuickPick([yesPlease, nooThanks], { title: 'Generate Flutter Forms', },)
 			const dartData = new JsonToDartClassInfo(json, className).result
-			const dart = generateClass(dartData)
+			const dart = generateClass(dartData, useForms)
 			editor.edit(builder => {
 				builder.replace(
 					/* new vscode.Range(
@@ -51,6 +52,6 @@ function deactivate() { }
 
 module.exports = {
 	activate,
-	deactivate
+	deactivate,
 }
 
