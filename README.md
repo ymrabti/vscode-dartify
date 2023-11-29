@@ -4,12 +4,14 @@ Welcome to json to dart (Dartify), yet another code generator for data-classes.
 
 ## Motivation
 
-- convert json to dart data model
-- override toString, operator ==, hashCode
-- implement a copyWith method to clone the object
-- handling de/serialization
+- *convert json to dart data model*
+
 - define a constructor + the properties
-- Im Mutable and Mutable data types
+- Immutable and Mutable data types
+- handling de/serialization
+- Flutter forms(creation/Edition)
+- implement a copyWith method to clone the object
+- override toString, operator ==, hashCode
 
 ## Usage
 

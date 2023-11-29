@@ -15,31 +15,30 @@ function activate(context) {
 		}
 		const text = editor.document.getText();
 		const selection = editor.selection;
-		let textSelected = editor.document.getText(selection);
-
-		if (!textSelected) {
-			textSelected = text;
-		}
+		const textSelected = editor.document.getText(selection);
+		const textt = !textSelected ? text : textSelected
 		try {
-			const json = JSON.parse(textSelected.trim());
+			const json = JSON.parse(textt.trim());
 			const className = await vscode.window.showInputBox({
 				placeHolder: "Entry class name",
 				prompt: "Enter class name",
 				value: "DartifyGeneratedCode"
-			})
-			const useForms = await vscode.window.showQuickPick([yesPlease, nooThanks], { title: 'Generate Flutter Forms', },)
-			const dartData = new JsonToDartClassInfo(json, className).result
-			const dart = generateClass(dartData, useForms)
-			editor.edit(builder => {
-				builder.replace(
-					/* new vscode.Range(
-						editor.document.lineAt(0).range.start,
-						editor.document.lineAt(editor.document.lineCount - 1).range.end
-					), */
-					selection,
-					dart,
-				);
 			});
+			if (!!className) {
+				const useForms = await vscode.window.showQuickPick([yesPlease, nooThanks], { title: 'Generate Flutter Forms', },)
+				const dartData = new JsonToDartClassInfo(json, className).result
+				const dart = generateClass(dartData, useForms)
+				const allDocument = new vscode.Range(
+					editor.document.lineAt(0).range.start,
+					editor.document.lineAt(editor.document.lineCount - 1).range.end
+				);
+				editor.edit(builder => {
+					builder.replace(!textSelected ? allDocument : selection, dart,);
+				});
+				vscode.window.showInformationMessage(`Classes Generated Successfully 🙈✔️`)
+			} else {
+				vscode.window.showErrorMessage(`Interrompted 💢❌`)
+			}
 		} catch (error) {
 			console.log(error);
 			vscode.window.showErrorMessage("Invalid Json Formatter")
