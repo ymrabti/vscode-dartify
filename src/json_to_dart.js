@@ -53,18 +53,19 @@ ${myClass.parameters.map((parameter) => {
 }
 
 ${genForms === yesPlease ? `
-static Widget formCreation(GlobalKey formBuilderKey){
-    final formElements = [
-      ${myClass.parameters.map((parameter) => {
-                const paramName = parameter.name
-                const option = !parameter.required ? ',optional: true' : '';
-                return `EPWTemplateFormField(name: ${className}Enum.${paramName}.name ${option}),`
-            }).join("\n")
-                }
-    ];
+static  final  List<Widget> formElements = [
+  ${myClass.parameters.map((parameter) => {
+            const paramName = parameter.name
+            const option = !parameter.required ? ',optional: true' : '';
+            return `EPWTemplateFormField(name: ${className}Enum.${paramName}.name ${option}),`
+        }).join("\n")
+            }
+];
+static Widget formCreation(GlobalKey formBuilderKey, {Map<String, Object?> initialValue = const {}}){
     return FormBuilder(
       key: formBuilderKey,
       autovalidateMode: AutovalidateMode.always,
+      initialValue: initialValue,
       child: ListView.separated(
         physics: NeverScrollableScrollPhysics(),
         separatorBuilder: (context, index) => Gap(getPropHeight(30)),
@@ -75,14 +76,6 @@ static Widget formCreation(GlobalKey formBuilderKey){
     );
 }
 Widget formEdition(GlobalKey formBuilderKey){
-    final formElements = [
-      ${myClass.parameters.map((parameter) => {
-                const paramName = parameter.name
-                const option = !parameter.required ? ',optional: true' : '';
-                return `EPWTemplateFormField(name: ${className}Enum.${paramName}.name ${option}),`
-            }).join("\n")
-                }
-    ];
     return FormBuilder(
       key: formBuilderKey,
       autovalidateMode: AutovalidateMode.always,
