@@ -5,14 +5,14 @@ const { writeFile } = require('fs');
 const json = require('@outs/example.json');
 const generateClass = require("@src/json_to_dart");
 const JsonToDartClassInfo = require("@src/get_class_info_from_json");
-const { yesPlease, nooThanks } = require('.');
-console.log({ yesPlease, nooThanks });
+const { yesPlease } = require('.');
 
 function test() {
-    const dartData = new JsonToDartClassInfo(json, "ABCX").result
-    const dart = generateClass(dartData, nooThanks)
+    const dartData = new JsonToDartClassInfo(json, "EPRSMPharmacienAdmin").result
+    const dart = generateClass(dartData, yesPlease)
     // const dirr = resolve(__dirname, '../outs', 'example.dart');
-    writeFile('C:/Users/USER/Coding/Flutter/my-apps/pharmagest/lib/espace_personel/components/auth_screens/screen_signup/components/test.dart',
+    const farma = 'C:/Users/USER/Coding/Flutter/my-apps/pharmagest/lib/espace_personel/profile_test_section.dart'
+    writeFile(farma,
         dart, (err) => {
             if (err) {
                 console.error(err);
