@@ -3,6 +3,7 @@ const vscode = require('vscode');
 const generateClass = require("@src/json_to_dart")
 const JsonToDartClassInfo = require("@src/get_class_info_from_json");
 const { yesPlease, nooThanks } = require('@src/index');
+const { JsonToTranslations } = require('./src/generate_translations');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -25,19 +26,48 @@ function activate(context) {
 				value: "DartifyGeneratedCode"
 			});
 			if (!!className) {
-				const useForms = await vscode.window.showQuickPick([yesPlease, nooThanks], { title: 'Generate Flutter Forms', },)
-				const dartData = new JsonToDartClassInfo(json, className).result
-				const dart = generateClass(dartData, useForms)
+				const useForms = await vscode.window.showQuickPick([yesPlease, nooThanks], { title: 'Generate Flutter Forms', });
+				const dartData = new JsonToDartClassInfo(json, className).result;
+				const dart = generateClass(dartData, useForms);
 				const allDocument = new vscode.Range(
 					editor.document.lineAt(0).range.start,
 					editor.document.lineAt(editor.document.lineCount - 1).range.end
 				);
 				editor.edit(builder => {
-					builder.replace(!textSelected ? allDocument : selection, dart,);
+					builder.replace(!textSelected ? allDocument : selection, dart);
 				});
-				vscode.window.showInformationMessage(`Classes Generated Successfully 🙈✔️`)
+				vscode.window.showInformationMessage(`Classes Generated Successfully 🙈✔️`);
 			} else {
-				vscode.window.showErrorMessage(`Interrompted 💢❌`)
+				vscode.window.showErrorMessage(`Interrompted 💢❌`);
+			}
+		} catch (error) {
+			console.log(error);
+			vscode.window.showErrorMessage("Invalid Json Formatter")
+		}
+	});
+	let disposable2 = vscode.commands.registerCommand('dartify.toTranslations', async function () {
+		// await selectFile();
+		const editor = vscode.window.activeTextEditor
+		if (!editor) {
+			return;
+		}
+		const text = editor.document.getText();
+		const selection = editor.selection;
+		const textSelected = editor.document.getText(selection);
+		const textt = !textSelected ? text : textSelected
+		try {
+			const json = JSON.parse(textt.trim());
+			if (Array.isArray(json)) {
+				const transss = new JsonToTranslations(json);
+				const dartData = transss.DartifyTranslations;
+				const allDocument = new vscode.Range(
+					editor.document.lineAt(0).range.start,
+					editor.document.lineAt(editor.document.lineCount - 1).range.end
+				);
+				editor.edit(builder => {
+					builder.replace(!textSelected ? allDocument : selection, dartData);
+				});
+				vscode.window.showInformationMessage(`Translations Generated Successfully 🌐✔️`);
 			}
 		} catch (error) {
 			console.log(error);
@@ -46,11 +76,37 @@ function activate(context) {
 	});
 
 	context.subscriptions.push(disposable);
+	context.subscriptions.push(disposable2);
+}
+async function selectFile() {
+	const currentFolder = vscode.workspace.rootPath; // Get the current workspace folder
+	if (!currentFolder) {
+		vscode.window.showErrorMessage('No workspace folder found.');
+		return;
+	}
+
+	const fileUri = await vscode.window.showOpenDialog({
+		defaultUri: vscode.Uri.file(currentFolder), // Set the default directory
+		canSelectFiles: true,
+		canSelectFolders: false,
+		canSelectMany: false,
+		filters: {
+			'JSON': ['json']
+		},
+		openLabel: 'Select File'
+	});
+
+	if (fileUri && fileUri.length > 0) {
+		const selectedFilePath = fileUri[0].fsPath; // Get the selected file path
+		vscode.window.showInformationMessage(`Selected file: ${selectedFilePath}`);
+		// You can use the selected file path for further processing here
+	}
 }
 function deactivate() { }
 
 module.exports = {
 	activate,
 	deactivate,
+	selectFile,
 }
 

@@ -2,7 +2,7 @@ const { yesPlease } = require(".");
 
 const listRegExp = RegExp(/^List<[a-zA-Z]+[\?]{0,1}>[\?]{0,1}$/);
 module.exports = function generateClass(classInfo, genForms) {
-    return `
+  return `
     ${genForms === yesPlease ? `
 import "package:flutter/material.dart";
 import "package:flutter_form_builder/flutter_form_builder.dart";
@@ -13,40 +13,40 @@ import "package:pharmagest/lib.dart";
 `: ''}
     
     ${classInfo.class.map((myClass) => {
-        const className = myClass.className
-        const params = myClass.parameters.sort((a, b) => a.name.length - b.name.length)
-        return `
+    const className = myClass.className
+    const params = myClass.parameters
+    return `
 enum ${className}Enum{
     ${params.map((parameter) => {
-            const paramName = parameter.name
-            return `${paramName},`
-        }).join("\n")
-            }
+      const paramName = parameter.name
+      return `${paramName},`
+    }).join("\n")
+      }
     none,
 }
 class ${className} {
 ${params.map((parameter) => {
-                const paramName = parameter.name
-                return `
+        const paramName = parameter.name
+        return `
             ${myClass.mutable ? "" : "final"} ${parameter.dataType} ${paramName};`
-            }).join("\n")
-            }
+      }).join("\n")
+      }
     ${myClass.mutable ? "" : "const"} ${className}({
         ${params.map((parameter) => {
-                const reaq = !parameter.required ? '' : 'required'
-                return `\t\t${reaq} this.${parameter.name},`
-            }).join("\n")
-            }});
+        const reaq = !parameter.required ? '' : 'required'
+        return `\t\t${reaq} this.${parameter.name},`
+      }).join("\n")
+      }});
 
     ${className} copyWith({
         ${params.map((parameter) => {
-                const endsWith = parameter.dataType.endsWith("?")
-                const dataType = parameter.dataType
-                const paramDtype = dataType + (dataType == "dynamic" ? "" : "?")
-                return `\t\t${endsWith ? dataType : paramDtype} ${parameter.name}, `;
+        const endsWith = parameter.dataType.endsWith("?")
+        const dataType = parameter.dataType
+        const paramDtype = dataType + (dataType == "dynamic" ? "" : "?")
+        return `\t\t${endsWith ? dataType : paramDtype} ${parameter.name}, `;
 
-            }).join("\n")
-            }}){
+      }).join("\n")
+      }}){
     return ${className}(${params.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name},`).join("\n")});
     }
         
@@ -54,17 +54,17 @@ ${params.map((parameter) => {
         return {
             ${params.map((parameter) => `${className}Enum.${parameter.name}.name: ${parameter.inbuilt ? parameter.name : toJsonForClass(parameter)}`).join(",\n")
 
-            },};
+      },};
 }
 
 ${genForms === yesPlease ? `
 static  final  List<Widget> formElements = [
   ${params.map((parameter) => {
-                const paramName = parameter.name
-                const option = !parameter.required ? ',optional: true' : '';
-                return `EPWTemplateFormField(name: ${className}Enum.${paramName}.name ${option}),`
-            }).join("\n")
-                }
+        const paramName = parameter.name
+        const option = !parameter.required ? ',optional: true' : '';
+        return `EPWTemplateFormField(name: ${className}Enum.${paramName}.name ${option}),`
+      }).join("\n")
+        }
 ];
 static Widget formCreation(GlobalKey formBuilderKey, {Map<String, Object?> initialValue = const {}}){
     return FormBuilder(
@@ -91,10 +91,10 @@ Widget formEdition({required FutureOr<bool> Function(${className} data) submit})
 factory ${className}.fromJson(Map<String , Object?> json){
     return ${className}(
             ${params.map((parameter) => {
-                    const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
-                    const inBuilt = `${jsonKey} ${!parameter.required ? `==''?null:${jsonKey}` : ''} ${`as ${parameter.dataType}`}`;
-                    return `${parameter.name}:${parameter.inbuilt ? inBuilt : `${fromJsonForClass(parameter, myClass.className)}`}`;
-                }).join(",\n")},
+          const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
+          const inBuilt = `${jsonKey} ${!parameter.required ? `==''?null:${jsonKey}` : ''} ${`as ${parameter.dataType}`}`;
+          return `${parameter.name}:${parameter.inbuilt ? inBuilt : `${fromJsonForClass(parameter, myClass.className)}`}`;
+        }).join(",\n")},
     );
 }
 @override
@@ -122,6 +122,30 @@ int get hashCode {
     );
 }
     
+}
+extension ${className}Sort on List<${className}>{
+    List<${className}> sort(${className}Enum caseField, {bool desc = false}){
+      return this
+      ..sort((a, b) {
+        int fact = (desc? -1 : 1);
+        switch (caseField) {
+          
+          ${params.map((parameter) => {
+            const paramName = parameter.name
+            return `case ${className}Enum.${paramName}:
+            // ${parameter.sortable?'sortable':'unsortable'}
+            ${parameter.dataType} akey = a.${parameter.name};
+            ${parameter.dataType} bkey = b.${parameter.name};
+            ${!parameter.required ? `if (akey == null) return fact;`:''}
+            ${parameter.sort}
+            `
+        }).join("\n")
+      }
+          default:
+            return 0;
+        }
+      });
+  }
 }
 ${genForms === yesPlease ? `
 
@@ -180,9 +204,9 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
             ),
             ...[
 ${params.map((parameter) => {
-                    const paramName = parameter.name
-                    const option = !parameter.required ? ',optional: true' : '';
-                    return `Builder(builder: (context) {
+        const paramName = parameter.name
+        const option = !parameter.required ? ',optional: true' : '';
+        return `Builder(builder: (context) {
                 ${className}Enum fieldCode = ${className}Enum.${paramName};
                 bool codeMatch = codeEdit.value == fieldCode;
                 return Padding(
@@ -208,8 +232,8 @@ ${params.map((parameter) => {
                 ),
                 );
               }),`
-                }).join("\n")
-                }
+      }).join("\n")
+        }
             ],
             Padding(
               padding: const EdgeInsets.all(14.0),
@@ -292,8 +316,8 @@ ${params.map((parameter) => {
 }
 `: ''}
       `
-    }).join("\n")
-        }
+  }).join("\n")
+    }
   
      `
 }
@@ -301,61 +325,61 @@ ${params.map((parameter) => {
 
 
 function removeQuestion(str) {
-    if (str.endsWith("?")) {
-        return str.substring(0, str.length - 1)
-    }
-    return str;
+  if (str.endsWith("?")) {
+    return str.substring(0, str.length - 1)
+  }
+  return str;
 }
 
 function toJsonForClass(parameter) {
-    if (listRegExp.test(parameter.dataType)) {
-        var optional = !parameter.required ? `?` : '';
-        var param = parameter.name;
-        return `${param}${optional}.map<Map<String,dynamic>>((data)=> data.toJson()).toList()`
-    } else if (`${parameter.dataType}`.endsWith("?")) {
-        var paranam = `${parameter.name}`;
-        return `${paranam}?.toJson()`
-    }
-    return `${parameter.name}.toJson()`
+  if (listRegExp.test(parameter.dataType)) {
+    var optional = !parameter.required ? `?` : '';
+    var param = parameter.name;
+    return `${param}${optional}.map<Map<String,dynamic>>((data)=> data.toJson()).toList()`
+  } else if (`${parameter.dataType}`.endsWith("?")) {
+    var paranam = `${parameter.name}`;
+    return `${paranam}?.toJson()`
+  }
+  return `${parameter.name}.toJson()`
 }
 function fromJsonForClass(parameter, className) {
-    const asmap = ' as Map<String,Object?>';
-    const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
-    const pfj = `${parameter.className}.fromJson`;
-    const pl = `(${jsonKey} as List).map<${parameter.className}>((data)=> ${pfj}(data ${asmap})).toList()`;
-    const isOptDataType = isOptionalDataType(parameter.dataType)
-    const checkedType = checkType(parameter.dataType)
-    if (listRegExp.test(parameter.dataType)) {
-        return isOptDataType ? `${jsonKey} == null ? ${checkedType} :${pl}` : pl
-    }
-    return isOptDataType ? `${jsonKey} == null ? ${checkedType} : ${pfj}(${jsonKey} ${asmap})` : `${pfj}(${jsonKey} ${asmap})`
+  const asmap = ' as Map<String,Object?>';
+  const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
+  const pfj = `${parameter.className}.fromJson`;
+  const pl = `(${jsonKey} as List).map<${parameter.className}>((data)=> ${pfj}(data ${asmap})).toList()`;
+  const isOptDataType = isOptionalDataType(parameter.dataType)
+  const checkedType = checkType(parameter.dataType)
+  if (listRegExp.test(parameter.dataType)) {
+    return isOptDataType ? `${jsonKey} == null ? ${checkedType} :${pl}` : pl
+  }
+  return isOptDataType ? `${jsonKey} == null ? ${checkedType} : ${pfj}(${jsonKey} ${asmap})` : `${pfj}(${jsonKey} ${asmap})`
 }
 
 
 function isOptionalDataType(dataType) {
-    return dataType.endsWith("?")
+  return dataType.endsWith("?")
 }
 function checkType(variable) {
-    if (variable === 'int') {
-        return '0';
-    }
-    if (variable === 'double') {
-        return '0.0';
-    }
-    if (variable === 'String') {
-        return '""';
-    }
-    if (listRegExp.test(variable)) {
-        return '[]';
-    }
-    if (variable === 'bool') {
-        return 'false';
-    }
-    if (['int?', 'double?', 'String?', 'bool?'].includes(variable)) {
-        return 'null';
-    }
-    else {
-        return `${removeQuestion(variable)}.fromJson({})`;
-    }
+  if (variable === 'int') {
+    return '0';
+  }
+  if (variable === 'double') {
+    return '0.0';
+  }
+  if (variable === 'String') {
+    return '""';
+  }
+  if (listRegExp.test(variable)) {
+    return '[]';
+  }
+  if (variable === 'bool') {
+    return 'false';
+  }
+  if (['int?', 'double?', 'String?', 'bool?'].includes(variable)) {
+    return 'null';
+  }
+  else {
+    return `${removeQuestion(variable)}.fromJson({})`;
+  }
 }
 

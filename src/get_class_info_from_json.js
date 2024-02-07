@@ -6,7 +6,7 @@ module.exports = class JsonToDartClassInfo {
     constructor(json, className) {
         this.DartifyClassData = {
             class: [
-    
+
             ]
         };
         this.DartifyClassData.class.push(this.getClassInfo(json, className))
@@ -25,62 +25,56 @@ module.exports = class JsonToDartClassInfo {
                 let parameterName = this.getDartParameterName(key)
                 let className = this.handelMap(element, key)
                 const optional = parameterName.startsWith('_');
+                const sortable = key.endsWith('$');
                 const suffix = optional ? '?' : '';
+                const name = optional ? parameterName.slice(1) : parameterName;
+                const dartType = className.dataType === "dynamic" ? "dynamic" : `${className.dataType}${suffix}`;
+                const sort = this.getSort(element, key, optional);
                 classDetails.parameters.push({
                     required: !optional,
-                    name: optional ? parameterName.slice(1) :parameterName,
-                    dataType: className.dataType === "dynamic" ? "dynamic" : `${className.dataType}${suffix}`,
-                    inbuilt: className.inbuilt ,
-                    className: className.className 
+                    name: name,
+                    sort: sort,
+                    sortable,
+                    dataType: dartType,
+                    inbuilt: className.inbuilt,
+                    includeSearch: key.endsWith('$'),
+                    className: className.className
                 })
             }
         }
         return classDetails;
     }
 
-    handelMap(dataType, key) {
-        let dataTypeString = JSON.stringify(dataType)
-        if (dataTypeString.startsWith("{") && dataTypeString.endsWith("}")) {
-            let className = this.getDartClassName(key)
-            let data = this.getClassInfo(dataType, className)
-            let duplicateClass = this.checkIsDuplicateClass(this.DartifyClassData.class, data)
-            if (duplicateClass != null) {
-                return {
-                    dataType: duplicateClass.className, 
-                    //`Map<${this.getMapKeyDataType(duplicateClass?.parameters)},${duplicateClass?.className}>`,
-                    inbuilt: false,
-                    className: duplicateClass.className
-                };
-
-            } else {
-
-                this.DartifyClassData.class.push(data)
-                return {
-                    dataType: className, 
-                    //`Map<${this.getMapKeyDataType(data.parameters)},${className}>`,
-                    inbuilt: false,
-                    className: className
-                };
-            }
-        }
-        return this.getDartDataType(dataType, key);
-    }
-
-    getDartDataType(dataType, key) {
-        switch (typeof (dataType)) {
+    getDartDataType(value, key) {
+        switch (typeof (value)) {
             case "string":
+                if (this.isDate(value)) {
+                    return {
+                        dataType: "DateTime",
+                        inbuilt: true,
+                        className: ""
+                    };
+                }
+                else if (this.isTimeOfDay(value)) {
+                    return {
+                        dataType: "TimeOfDay",
+                        inbuilt: true,
+                        className: ""
+                    };
+                }
                 return {
                     dataType: "String",
                     inbuilt: true,
                     className: ""
                 };
             case "number":
-                if (this.isInteger(dataType))
+                if (this.isInteger(value)) {
                     return {
                         dataType: "int",
                         inbuilt: true,
                         className: ""
                     };
+                }
                 return {
                     dataType: "double",
                     inbuilt: true,
@@ -93,11 +87,11 @@ module.exports = class JsonToDartClassInfo {
                     className: ""
                 };
             case "object":
-                if (Array.isArray(dataType)) {
-                    return this.handelList(dataType, key)
+                if (Array.isArray(value)) {
+                    return this.handelList(value, key)
                 }
 
-                if (dataType == "null") return {
+                if (value == "null") return {
                     dataType: "dynamic",
                     inbuilt: true,
                     className: ""
@@ -115,10 +109,97 @@ module.exports = class JsonToDartClassInfo {
                 };
         }
     }
-    getMapKeyDataType(parameters) {
-        if (parameters == null || parameters.length <= 0) return 'String';
-        return parameters[0].dataType.replace("?", "")
+
+    getSort(value, key, optional) {
+        switch (typeof (value)) {
+            case "string":
+                if (this.isDate(value)) {
+                    return `return fact * bkey.compareTo(akey);`;
+                }
+                else if (this.isTimeOfDay(value)) {
+                    return `
+                        int aValue = akey.hour + 60 + akey.minute;
+                        int bValue = bkey.hour + 60 + bkey.minute;
+                        return  fact * (bValue - aValue);`
+                        ;
+                }
+                else { return `return fact * (bkey${optional ? '?' : ''}.compareTo(akey) ${optional?'?? 0':''});`; }
+            case "number":
+                if (this.isInteger(value)) {
+                    return `return fact * (bkey - akey);`;
+                }
+                return `return fact * bkey${optional ? '?' : ''}.compareTo(akey);`; 
+            case "boolean":
+                return `
+                aValue = akey ? 1 : 0;
+                bValue = bkey ? 1 : 0;
+                return fact * (bValue - aValue);
+                `;
+            case "object":
+                if (Array.isArray(value)) {
+                    return this.handelList(value, key)
+                }
+                if (value == "null") return ""
+                return ""
+            default:
+                return "";
+        }
     }
+    isDate(str) {
+        const timestamp = Date.parse(str);
+        return !isNaN(timestamp);
+    }
+
+    isTimeOfDay(timeString) {
+        const timeRegex = /^(0?[1-9]|1[0-2]):([0-5]\d)\s?(AM|PM)?$/i;
+        const match = timeString.match(timeRegex);
+
+        if (!match) {
+            return false;
+        }
+
+        const [reg, hourString, minuteString, meridiem] = match;
+        console.log(reg);
+        const hour = parseInt(hourString);
+        const minute = parseInt(minuteString);
+
+        if (hour > 12 || minute >= 60) {
+            return false;
+        }
+
+        const date = new Date();
+        date.setHours(hour + (meridiem === 'PM' && hour !== 12 ? 12 : 0));
+        date.setMinutes(minute);
+
+        return date.getHours() === hour && date.getMinutes() === minute;
+    }
+
+    handelMap(dataType, key) {
+        let dataTypeString = JSON.stringify(dataType)
+        if (dataTypeString.startsWith("{") && dataTypeString.endsWith("}")) {
+            let className = this.getDartClassName(key)
+            let data = this.getClassInfo(dataType, className)
+            let duplicateClass = this.checkIsDuplicateClass(this.DartifyClassData.class, data)
+            if (duplicateClass != null) {
+                return {
+                    className: duplicateClass.className,
+                    dataType: duplicateClass.className,
+                    inbuilt: false,
+                };
+
+            } else {
+
+                this.DartifyClassData.class.push(data)
+                return {
+                    className: className,
+                    dataType: className,
+                    inbuilt: false,
+                };
+            }
+        }
+        return this.getDartDataType(dataType, key);
+    }
+
     handelList(dataType, key) {
         if (dataType.length <= 0) return {
             dataType: `List<dynamic>`,
@@ -138,11 +219,13 @@ module.exports = class JsonToDartClassInfo {
         if (name == null || name == "") throw Error("Please Enter a Valid Parameter Name")
         return this.replaceUnderScoreWithTitle(name)
     }
+
     getDartClassName(name) {
         if (name == null || name == "") throw Error("Please Enter a Valid Parameter Name")
         let result = this.replaceUnderScoreWithTitle(name, true)
         return (result.charAt(0).toUpperCase() + result.slice(1))
     }
+
     replaceUnderScoreWithTitle(name, isClassName = false) {
         var format = isClassName ? /[`!@$%^&*()+\-_=\[\]{};':"\\|,.<>\/?~{0-9}]/ : /[`!@$%^&*()+\-=\[\]{};':"\\|,.<>\/?~{0-9}]/;
         const firstChar = name.charAt(0)
@@ -163,7 +246,6 @@ module.exports = class JsonToDartClassInfo {
         let jsonData = JSON.stringify(search.parameters)
         return array.find((data) => JSON.stringify(data.parameters) == jsonData)
     }
-
 
     isInteger(n) {
         return n === +n && n === (n | 0);
