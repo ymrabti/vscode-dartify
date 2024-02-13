@@ -1,90 +1,95 @@
 {
-  "name": "dartifyjson",
-  "displayName": "DARTIFY",
-  "description": "convert JSON data into DART data model",
-  "version": "0.2.18",
-  "scripts": {
-    "test-automation": "node converter/generate_model",
-    "example": "cls && node src/example",
-    "pretest": "npm run lint",
-    "bi": "cls && vsce package -o outs --no-yarn && code --install-extension outs/dartifyjson-0.2.18.vsix",
-    "test": "node ./test/runTest.js"
-  },
-  "engines": {
-    "vscode": "^1.77.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ymrabti/vscode-dartify"
-  },
-  "bugs": {
-    "url": "https://github.com/ymrabti/vscode-dartify/issues"
-  },
-  "publisher": "YOUMTINET",
-  "icon": "screenshots/dartify.jpeg",
-  "categories": [
-    "Programming Languages",
-    "Formatters",
-    "Snippets"
-  ],
-  "activationEvents": [],
-  "main": "./extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "dartify.parseJson",
-        "title": "DARTIFY: Generate classes",
-        "shortTitle": "dartify-genclasses"
-      },
-      {
-        "command": "dartify.toTranslations",
-        "title": "DARTIFY: Generate translations",
-        "shortTitle": "dartify-gentranslations"
-      }
+    "name": "dartifyjson",
+    "displayName": "DARTIFY",
+    "description": "convert JSON data into DART data model",
+    "version": "0.2.26",
+    "scripts": {
+        "test-automation": "node converter/generate_model",
+        "example": "cls && node src/example",
+        "pretest": "npm run lint",
+        "bi": "cls && vsce package -o outs --no-yarn && code --install-extension outs/dartifyjson-0.2.26.vsix",
+        "test": "node ./test/runTest.js"
+    },
+    "engines": {
+        "vscode": "^1.77.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ymrabti/vscode-dartify"
+    },
+    "bugs": {
+        "url": "https://github.com/ymrabti/vscode-dartify/issues"
+    },
+    "publisher": "YOUMTINET",
+    "icon": "screenshots/dartify.jpeg",
+    "categories": [
+        "Programming Languages",
+        "Formatters",
+        "Snippets"
     ],
-    "keybindings": [
-      {
-        "command": "dartify.parseJson",
-        "key": "ctrl+shift+alt+t"
-      }
-    ],
-    "languages": [
-      {
-        "id": "dart",
-        "aliases": [
-          "Dart",
-          "dart"
+    "activationEvents": [],
+    "main": "./extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "dartify.parseJson",
+                "title": "DARTIFY: Generate classes",
+                "shortTitle": "dartify-genclasses"
+            },
+            {
+                "command": "dartify.toTranslations",
+                "title": "DARTIFY: Generate translations",
+                "shortTitle": "dartify-gentranslations"
+            },
+            {
+                "command": "dartify.toAppEnums",
+                "title": "DARTIFY: Generate enums",
+                "shortTitle": "dartify-genenums"
+            }
         ],
-        "extensions": [
-          ".dart"
+        "keybindings": [
+            {
+                "command": "dartify.parseJson",
+                "key": "ctrl+shift+alt+t"
+            }
         ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "dart",
-        "scopeName": "source.dart",
-        "path": "./syntaxes/dart.tmLanguage.json"
-      }
-    ]
-  },
-  "devDependencies": {
-    "@types/glob": "^7.2.0",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "16.x",
-    "@types/vscode": "^1.70.0",
-    "@vscode/test-electron": "^2.1.5",
-    "glob": "^8.0.3",
-    "mocha": "^10.0.0",
-    "typescript": "^4.7.4"
-  },
-  "_moduleAliases": {
-    "@root": ".",
-    "@src": "src",
-    "@outs": "outs"
-  },
-  "dependencies": {
-    "module-alias": "2.2.3"
-  }
+        "languages": [
+            {
+                "id": "dart",
+                "aliases": [
+                    "Dart",
+                    "dart"
+                ],
+                "extensions": [
+                    ".dart"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "dart",
+                "scopeName": "source.dart",
+                "path": "./syntaxes/dart.tmLanguage.json"
+            }
+        ]
+    },
+    "devDependencies": {
+        "@types/glob": "^7.2.0",
+        "@types/mocha": "^9.1.1",
+        "@types/node": "16.x",
+        "@types/vscode": "^1.70.0",
+        "@vscode/test-electron": "^2.1.5",
+        "glob": "^8.0.3",
+        "mocha": "^10.0.0",
+        "typescript": "^4.7.4"
+    },
+    "_moduleAliases": {
+        "@root": ".",
+        "@src": "src",
+        "@outs": "outs"
+    },
+    "dependencies": {
+        "module-alias": "2.2.3"
+    }
 }
