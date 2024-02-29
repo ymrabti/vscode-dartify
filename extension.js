@@ -92,13 +92,13 @@ enum AppLocales { ${Object.keys(json[0]).filter(e => e != 'key').join(', ')} }
 
 enum AppTranslation {
   ${json.map(e => `
-    ${Object.keys(e).filter(e => e != 'key').map(j => `/// ${j}: ${e[j]}`).join('\n ')}
+    ${Object.keys(e).filter(e => e != 'key').map(j => `/// ${j}: ${`${e[j]}`.replace("'", "\\'")}`).join('\n ')}
   ${e.key},`).join('\n')}
 }
 
 ${Object.keys(json[0]).filter(e => e != 'key').map(f => `
 Map<String, String> ${f} = {
-    ${json.map(e => `AppTranslation.${e.key}.name: '${e[f]}',`).join('\n')}
+    ${json.map(e => `AppTranslation.${e.key}.name: '${`${e[f]}`.replace("'", "\\'")}',`).join('\n')}
 };
 `).join('\n')}
 

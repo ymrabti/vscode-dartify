@@ -10,6 +10,7 @@ import "package:gap/gap.dart";
 import "dart:async";
 import "package:flutter_hooks/flutter_hooks.dart" hide Store;
 import "package:pharmagest/lib.dart";
+import "package:power_geojson/power_geojson.dart";
 `: ''}
     
     ${classInfo.class.map((myClass) => {
@@ -99,7 +100,7 @@ factory ${className}.fromJson(Map<String , Object?> json){
 }
 @override
 String toString(){
-    return CanonicJSON(toJson()).toText();
+    return PowerJSON(toJson()).toText();
 }
 
 
@@ -223,7 +224,7 @@ ${params.map((parameter) => {
                           ),
                           onTap: () {
                             formKey.currentState?.save();
-                            codeEdit.value = codeMatch ? ${className}Enum.none : fieldCode;
+                            codeMatch ? ${className}Enum.none : fieldCode;
                           },
                         ),
                         codeMatch: codeMatch,
@@ -238,7 +239,7 @@ ${params.map((parameter) => {
             Padding(
               padding: const EdgeInsets.all(14.0),
               child: Visibility(
-                visible: phormState == PhormState.error,
+                visible: phormState.value == PhormState.error,
                 child: labelRichText(
                   required: false,
                   text: translate(AppTranslation.erreurValidationFormule),

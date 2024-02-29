@@ -1,0 +1,308 @@
+[
+    {
+        "key": "prixBr",
+        "ar": "السعر BR",
+        "fr": "Prix BR",
+        "en": "Price BR"
+    },
+    {
+        "key": "ajouterUnCommentaire",
+        "ar": "إضافة تعليق",
+        "fr": "Ajouter un commentaire",
+        "en": "Add a comment"
+    },
+    {
+        "key": "publicationOf",
+        "ar": "منشور لـ @name",
+        "fr": "Publication de @name",
+        "en": "Post of @name"
+    },
+    {
+        "key": "publications",
+        "ar": "الـمـنشـورات",
+        "fr": "Publications",
+        "en": "Posts"
+    },
+    {
+        "key": "ecrivezQuelqueChose",
+        "ar": "ماذا يـــــدور في بـــــــالــك",
+        "fr": "Écrivez quelque chose...",
+        "en": "Write something..."
+    },
+    {
+        "key": "saisirUnTexteOuAjouterUnePhoto",
+        "ar": "اكتب نصًا أو أضف صورة",
+        "fr": "Saisir un texte ou ajouter une photo",
+        "en": "Write a text or add a picture"
+    },
+    {
+        "key": "ajouterUnePublication",
+        "ar": "اضف منشورا",
+        "fr": "Ajouter une publication",
+        "en": "Add a post"
+    },
+    {
+        "key": "parametres",
+        "ar": "الإعدادات",
+        "fr": "Réglages",
+        "en": "Settings"
+    },
+    {
+        "key": "themeSombre",
+        "ar": "المظهر الداكن",
+        "fr": "Thème sombre",
+        "en": "Dark Theme"
+    },
+    {
+        "key": "themeJour",
+        "ar": "ضوء النهار",
+        "fr": "Thème lumière",
+        "en": "Light Theme"
+    },
+    {
+        "key": "themeSysteme",
+        "ar": "سمة النظام",
+        "fr": "Thème du système",
+        "en": "System Theme"
+    },
+    {
+        "key": "changerLangue",
+        "ar": "تغيير اللغة",
+        "fr": "CHANGER DE LANGUE",
+        "en": "CHANGE LANGUAGE"
+    },
+    {
+        "key": "apropos",
+        "ar": "معلومات عنا",
+        "fr": "À propos",
+        "en": "About"
+    },
+    {
+        "key": "appliquer",
+        "ar": "تطبيق",
+        "fr": "Appliquer",
+        "en": "Apply"
+    },
+    {
+        "key": "type",
+        "ar": "النوعية",
+        "fr": "Type",
+        "en": "Type"
+    },
+    {
+        "key": "quantiteEnStock",
+        "ar": "الكميه في المخزن",
+        "fr": "Quantité en stock",
+        "en": "Quantity in stock"
+    },
+    {
+        "key": "accesRapide",
+        "ar": "وصول سريع",
+        "fr": "Accès rapide",
+        "en": "Quick access"
+    },
+    {
+        "key": "prix",
+        "ar": "السعر",
+        "fr": "Prix",
+        "en": "Price"
+    },
+    {
+        "key": "filtres",
+        "ar": "المرشحات",
+        "fr": "Filtres",
+        "en": "Filters"
+    },
+    {
+        "key": "conditionsGenerales",
+        "ar": "شروط عامة",
+        "fr": "conditions générales",
+        "en": "terms and conditions"
+    },
+    {
+        "key": "haveNoAccount",
+        "ar": "لا تملك حسابا حتى الآن ؟",
+        "fr": "Vous n'avez pas encore de compte ? ",
+        "en": "Do not have an account yet ?"
+    },
+    {
+        "key": "createAnAccount",
+        "ar": "إفتح حساب",
+        "fr": "Créer un compte",
+        "en": "Create an account"
+    },
+    {
+        "key": "haveAccount",
+        "ar": "هل لديك حساب ؟",
+        "fr": "Vous avez un compte ? ",
+        "en": "Have an account ?"
+    },
+    {
+        "key": "connect",
+        "ar": "تسجيل الدخول",
+        "fr": "Connectez-vous",
+        "en": "Login"
+    },
+    {
+        "key": "quitAppRequest",
+        "ar": "هل تريد حقًا إنهاء التطبيق؟",
+        "fr": "Voulez-vous vraiment quitter l'application ?",
+        "en": "Do you really want to quit the application?"
+    },
+    {
+        "key": "cancel",
+        "ar": "الغاء",
+        "fr": "Annuler",
+        "en": "Cancel"
+    },
+    {
+        "key": "yesQuit",
+        "ar": "نعم, خروج",
+        "fr": "Oui, Quitter",
+        "en": "Yes, Exit"
+    },
+    {
+        "key": "tooggleThemeMode",
+        "ar": "قم بالتبديل إلى الوضع المظلم",
+        "fr": "Basculer en mode sombre",
+        "en": "Switch to dark mode"
+    },
+    {
+        "key": "verifyPhoneNumber",
+        "ar": "افحص هاتفك",
+        "fr": "Vérifiez votre téléphone",
+        "en": "Check your phone"
+    },
+    {
+        "key": "enterPin",
+        "ar": "الرجاء إدخال رمز PIN المكون من 6 أرقام.",
+        "fr": "Veuillez entrer le code PIN à 6 chiffres.",
+        "en": "Please enter the 6-digit PIN code."
+    },
+    {
+        "key": "oops",
+        "ar": "عذرًا!",
+        "fr": "Oups !",
+        "en": "Whoops !"
+    },
+    {
+        "key": "wrongPin",
+        "ar": "يبدو أنك أدخلت رقم PIN الشخصي الخطأ. المرجو اعادة المحاولة.",
+        "fr": "Il semble que vous ayez saisi le mauvais code PIN. Veuillez réessayer.",
+        "en": "It looks like you entered the wrong PIN. Try Again."
+    },
+    {
+        "key": "verify",
+        "ar": "تحقق",
+        "fr": "Vérifier",
+        "en": "Check"
+    },
+    {
+        "key": "updateTitle",
+        "ar": "تحديث!",
+        "fr": "Mise à jour!",
+        "en": "Update!"
+    },
+    {
+        "key": "updateAvailable",
+        "ar": "تحديث متاح!",
+        "fr": "Mise à jour disponible!",
+        "en": "Update available!"
+    },
+    {
+        "key": "updateInfo",
+        "ar": "من أجل سلامتك ، نوصي باستخدام آخر التحديثات",
+        "fr": "Pour votre sécurité, nous vous recommandons d'utiliser les dernières mises a jours",
+        "en": "For your safety, we recommend that you use the latest updates"
+    },
+    {
+        "key": "ignoreUpdate",
+        "ar": "تجاهل",
+        "fr": "Ignorer",
+        "en": "Ignore"
+    },
+    {
+        "key": "confirmUpdate",
+        "ar": "تحديث",
+        "fr": "Mettre a jour",
+        "en": "Update"
+    },
+    {
+        "key": "invoicesList",
+        "ar": "قائمة الفواتير @text",
+        "fr": "Liste des factures @text",
+        "en": "List of invoices @text"
+    },
+    {
+        "key": "search",
+        "ar": "بحث عن",
+        "fr": "Chercher",
+        "en": "Look for"
+    },
+    {
+        "key": "from",
+        "ar": "من",
+        "fr": "De",
+        "en": "Of"
+    },
+    {
+        "key": "to",
+        "ar": "الى",
+        "fr": "jusqu’à",
+        "en": "up to"
+    },
+    {
+        "key": "dirham",
+        "ar": "درهم",
+        "fr": "MAD",
+        "en": "MAD"
+    },
+    {
+        "key": "drawerHome",
+        "ar": "الصفحة الرئيسية",
+        "fr": "Accueil",
+        "en": "Welcome"
+    },
+    {
+        "key": "drawerProfile",
+        "ar": "ملفي",
+        "fr": "Mon profil",
+        "en": "My profile"
+    },
+    {
+        "key": "drawerInvoice",
+        "ar": "الفواتير",
+        "fr": "Factures",
+        "en": "Invoices"
+    },
+    {
+        "key": "drawerorders",
+        "ar": "تتبع الطلب",
+        "fr": "Suivi Commandes",
+        "en": "Order Tracking"
+    },
+    {
+        "key": "drawerPharmacie",
+        "ar": "صيدليتي",
+        "fr": "Ma pharmacie",
+        "en": "My pharmacy"
+    },
+    {
+        "key": "drawerDisconnect",
+        "ar": "تسجيل الخروج",
+        "fr": "Se déconnecter",
+        "en": "Sign out"
+    },
+    {
+        "key": "myCart",
+        "ar": "سلتي",
+        "fr": "Mon panier",
+        "en": "My basket"
+    },
+    {
+        "key": "orderState",
+        "ar": "-- حالة الطلب --",
+        "fr": "-- État de la commande --",
+        "en": "-- Order status --"
+    }
+]
