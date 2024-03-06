@@ -111,36 +111,43 @@ module.exports = class JsonToDartClassInfo {
     }
 
     getSort(value, key, optional) {
+        const aOnly = optional ? `if (akey == null) return fact;` : '';
+        const ab = optional ? `if (akey == null || bkey == null) return fact;` : '';
         switch (typeof (value)) {
             case "string":
                 if (this.isDate(value)) {
-                    return `return fact * bkey.compareTo(akey);`;
+                    return `
+                    ${aOnly}
+                    return fact * bkey${optional ? '?' : ''}.compareTo(akey);`;
                 }
                 else if (this.isTimeOfDay(value)) {
                     return `
+                    ${ab}
                         int aValue = akey.hour + 60 + akey.minute;
                         int bValue = bkey.hour + 60 + bkey.minute;
                         return  fact * (bValue - aValue);`
                         ;
                 }
-                else { return `return fact * (bkey${optional ? '?' : ''}.compareTo(akey) ${optional?'?? 0':''});`; }
+                else {
+                    return `
+                    ${aOnly}
+                    return fact * (bkey${optional ? '?' : ''}.compareTo(akey) ${optional ? '?? 0' : ''});`;
+                }
             case "number":
                 if (this.isInteger(value)) {
-                    return `return fact * (bkey - akey);`;
+                    return `
+                    ${ab}return fact * (bkey - akey);`;
                 }
-                return `return fact * bkey${optional ? '?' : ''}.compareTo(akey);`; 
+                return `
+                    ${aOnly}
+                    return fact * bkey${optional ? '?' : ''}.compareTo(akey);`;
             case "boolean":
                 return `
-                aValue = akey ? 1 : 0;
-                bValue = bkey ? 1 : 0;
+                ${ab}
+                int aValue = akey ? 1 : 0;
+                int bValue = bkey ? 1 : 0;
                 return fact * (bValue - aValue);
                 `;
-            case "object":
-                if (Array.isArray(value)) {
-                    return this.handelList(value, key)
-                }
-                if (value == "null") return ""
-                return ""
             default:
                 return "";
         }

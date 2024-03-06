@@ -37,7 +37,8 @@ ${params.map((parameter) => {
                 const reaq = !parameter.required ? '' : 'required'
                 return `\t\t${reaq} this.${parameter.name},`
             }).join("\n")
-            }});
+            }
+});
 
     ${className} copyWith({
         ${params.map((parameter) => {
@@ -131,18 +132,27 @@ extension ${className}Sort on List<${className}>{
         int fact = (desc? -1 : 1);
         switch (caseField) {
           
-          ${params.map((parameter) => {
+          ${params.filter(e => e.inbuilt).map((parameter) => {
                     const paramName = parameter.name
                     return `case ${className}Enum.${paramName}:
             // ${parameter.sortable ? 'sortable' : 'unsortable'}
+            
+            ${parameter.sort != "" ? `
             ${parameter.dataType} akey = a.${parameter.name};
             ${parameter.dataType} bkey = b.${parameter.name};
-            ${!parameter.required ? `if (akey == null) return fact;` : ''}
             ${parameter.sort}
+            ` : ''}
             `
                 }).join("\n")
             }
-          default:
+          ${params.filter(e => !e.inbuilt).map((parameter) => {
+                const paramName = parameter.name
+                return `case ${className}Enum.${paramName}:
+            // ${parameter.sortable ? 'sortable' : 'unsortable'}
+            `
+            }).join("\n")
+            }
+            case ${className}Enum.none:
             return 0;
         }
       });
@@ -265,6 +275,7 @@ ${params.map((parameter) => {
                           bool result = await widget.submit(formValue);
                           if (result) {
                             phormState.value = PhormState.valide;
+                            changed.value = false;
                           } else {
                             phormState.value = PhormState.error;
                           }

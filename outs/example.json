@@ -9,9 +9,18 @@
     "_ville": "",
     "phonePersonnel": "",
     "nomPharmacie": "",
-    "numeroPatente": "",
+    "_numeroPatente": 1,
     "emailProfessionnel": "",
     "adressePharmacie": "",
     "villePharmacie": "",
-    "phonePharmacie": ""
+    "phonePharmacie": "",
+    "objected": [
+        "phonePersonnel",
+        "nomPharmacie",
+        "numeroPatente",
+        "emailProfessionnel",
+        "adressePharmacie",
+        "villePharmacie",
+        "phonePharmacie"
+    ]
 }
