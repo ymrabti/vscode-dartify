@@ -1,7 +1,7 @@
 const { yesPlease } = require(".");
 
 const listRegExp = RegExp(/^List<[a-zA-Z]+[\?]{0,1}>[\?]{0,1}$/);
-module.exports = function generateClass(classInfo, genForms) {
+module.exports = function generateClass(classInfo, genForms, jsonWild) {
     return `
     ${genForms === yesPlease ? `
 import "package:flutter/material.dart";
@@ -13,6 +13,9 @@ import "package:pharmagest/lib.dart";
 import "package:power_geojson/power_geojson.dart";
 `: ''}
     
+/*    
+    ${jsonWild}
+*/
     ${classInfo.class.map((myClass) => {
         const className = myClass.className
         const params = myClass.parameters
@@ -63,8 +66,14 @@ ${genForms === yesPlease ? `
 static  final  List<Widget> formElements = [
   ${params.map((parameter) => {
                 const paramName = parameter.name
-                const option = !parameter.required ? ',optional: true' : '';
-                return `EPWTemplateFormField(name: ${className}Enum.${paramName}.name ${option}),`
+                return `${parameter.entryClass}(
+        name: ${className}Enum.${paramName}.name ,
+        hintText: 'tr \${${className}Enum.${paramName}.name}' ,
+        labelText: 'tr \${${className}Enum.${paramName}.name}' ,
+        formEdition: null,
+        codeMatch: false,
+        optional: ${!parameter.required},
+        ),`
             }).join("\n")
                 }
 ];
@@ -113,7 +122,7 @@ String stringify(){
 bool operator ==(Object other){
     return other is ${className} && 
         other.runtimeType == runtimeType &&
-        ${params.map((parameter) => `other.${parameter.name} == ${parameter.name}`).join(" && \n")};
+        ${params.map((parameter) => `other.${parameter.name} == ${parameter.name}`).join(" &&// \n")};
 }
       
 @override
@@ -126,7 +135,7 @@ int get hashCode {
     
 }
 extension ${className}Sort on List<${className}>{
-    List<${className}> sort(${className}Enum caseField, {bool desc = false}){
+    List<${className}> sorty(${className}Enum caseField, {bool desc = false}){
       return this
       ..sort((a, b) {
         int fact = (desc? -1 : 1);
@@ -214,9 +223,8 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
               ),
             ),
             ...[
-${params.map((parameter) => {
+                ${params.map((parameter) => {
                 const paramName = parameter.name
-                const option = !parameter.required ? ',optional: true' : '';
                 return `Builder(builder: (context) {
                 ${className}Enum fieldCode = ${className}Enum.${paramName};
                 bool codeMatch = codeEdit.value == fieldCode;
@@ -226,7 +234,11 @@ ${params.map((parameter) => {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       paddingDivider(),
-                      EPWTemplateFormField(name: fieldCode.name ${option},
+                      ${parameter.entryClass}(
+                        name: fieldCode.name ,
+                    hintText: 'tr \${${className}Enum.${paramName}.name}' ,
+                    labelText: 'tr \${${className}Enum.${paramName}.name}' ,
+                    optional: ${!parameter.required},
                         formEdition: GestureDetector(
                           child: Icon(
                             codeMatch ? Icons.check : CupertinoIcons.pencil_circle,

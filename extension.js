@@ -28,7 +28,7 @@ function activate(context) {
             if (!!className) {
                 const useForms = await vscode.window.showQuickPick([yesPlease, nooThanks], { title: 'Generate Flutter Forms', });
                 const dartData = new JsonToDartClassInfo(json, className).result;
-                const dart = generateClass(dartData, useForms);
+                const dart = generateClass(dartData, useForms, json);
                 const allDocument = new vscode.Range(
                     editor.document.lineAt(0).range.start,
                     editor.document.lineAt(editor.document.lineCount - 1).range.end

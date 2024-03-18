@@ -36,6 +36,7 @@ module.exports = class JsonToDartClassInfo {
                     sort: sort,
                     sortable,
                     dataType: dartType,
+                    entryClass: this.getEntryClass(element),
                     inbuilt: className.inbuilt,
                     includeSearch: key.endsWith('$'),
                     className: className.className
@@ -107,6 +108,28 @@ module.exports = class JsonToDartClassInfo {
                     inbuilt: true,
                     className: ""
                 };
+        }
+    }
+
+    getEntryClass(value) {
+        switch (typeof (value)) {
+            case "string":
+                if (this.isDate(value)) {
+                    return 'FormPlusDateTimeField';
+                }
+                else if (this.isTimeOfDay(value)) {
+                    return 'FormPlusTimeField';
+                }
+                return 'FormPlusTextField';
+            case "number":
+                if (this.isInteger(value)) {
+                    return 'FormPlusIntField';
+                }
+                return 'FormPlusDoubleField';
+            case "boolean":
+                return 'FormPlusTimeField';
+            default:
+                return 'FormPlusTextField';
         }
     }
 
@@ -204,7 +227,7 @@ module.exports = class JsonToDartClassInfo {
                 };
             }
         }
-        return this.getDartDataType(dataType, key);
+        return this.getDartDataType(dataType, key,);
     }
 
     handelList(dataType, key) {
