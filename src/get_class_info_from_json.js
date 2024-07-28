@@ -1,3 +1,4 @@
+const { isDate, isTimeOfDay, isInteger } = require("./functions");
 module.exports = class JsonToDartClassInfo {
     get result() {
         this.DartifyClassData.class.reverse()
@@ -35,6 +36,7 @@ module.exports = class JsonToDartClassInfo {
                     name: name,
                     sort: sort,
                     sortable,
+                    value: element,
                     dataType: dartType,
                     entryClass: this.getEntryClass(element),
                     inbuilt: className.inbuilt,
@@ -49,14 +51,14 @@ module.exports = class JsonToDartClassInfo {
     getDartDataType(value, key) {
         switch (typeof (value)) {
             case "string":
-                if (this.isDate(value)) {
+                if (isDate(value)) {
                     return {
                         dataType: "DateTime",
                         inbuilt: true,
                         className: ""
                     };
                 }
-                else if (this.isTimeOfDay(value)) {
+                else if (isTimeOfDay(value)) {
                     return {
                         dataType: "TimeOfDay",
                         inbuilt: true,
@@ -69,7 +71,7 @@ module.exports = class JsonToDartClassInfo {
                     className: ""
                 };
             case "number":
-                if (this.isInteger(value)) {
+                if (isInteger(value)) {
                     return {
                         dataType: "int",
                         inbuilt: true,
@@ -114,15 +116,15 @@ module.exports = class JsonToDartClassInfo {
     getEntryClass(value) {
         switch (typeof (value)) {
             case "string":
-                if (this.isDate(value)) {
+                if (isDate(value)) {
                     return 'FormPlusDateTimeField';
                 }
-                else if (this.isTimeOfDay(value)) {
+                else if (isTimeOfDay(value)) {
                     return 'FormPlusTimeField';
                 }
                 return 'FormPlusTextField';
             case "number":
-                if (this.isInteger(value)) {
+                if (isInteger(value)) {
                     return 'FormPlusIntField';
                 }
                 return 'FormPlusDoubleField';
@@ -134,16 +136,15 @@ module.exports = class JsonToDartClassInfo {
     }
 
     getSort(value, key, optional) {
-        const aOnly = optional ? `if (akey == null) return fact;` : '';
         const ab = optional ? `if (akey == null || bkey == null) return fact;` : '';
         switch (typeof (value)) {
             case "string":
-                if (this.isDate(value)) {
+                if (isDate(value)) {
                     return `
-                    ${aOnly}
-                    return fact * bkey${optional ? '?' : ''}.compareTo(akey);`;
+                    ${ab}
+                    return fact * bkey.compareTo(akey);`;
                 }
-                else if (this.isTimeOfDay(value)) {
+                else if (isTimeOfDay(value)) {
                     return `
                     ${ab}
                         int aValue = akey.hour + 60 + akey.minute;
@@ -153,17 +154,17 @@ module.exports = class JsonToDartClassInfo {
                 }
                 else {
                     return `
-                    ${aOnly}
-                    return fact * (bkey${optional ? '?' : ''}.compareTo(akey) ${optional ? '?? 0' : ''});`;
+                    ${ab}
+                    return fact * (bkey.compareTo(akey));`;
                 }
             case "number":
-                if (this.isInteger(value)) {
+                if (isInteger(value)) {
                     return `
                     ${ab}return fact * (bkey - akey);`;
                 }
                 return `
-                    ${aOnly}
-                    return fact * bkey${optional ? '?' : ''}.compareTo(akey);`;
+                    ${ab}
+                    return fact * bkey.compareTo(akey);`;
             case "boolean":
                 return `
                 ${ab}
@@ -174,34 +175,6 @@ module.exports = class JsonToDartClassInfo {
             default:
                 return "";
         }
-    }
-    isDate(str) {
-        const timestamp = Date.parse(str);
-        return !isNaN(timestamp);
-    }
-
-    isTimeOfDay(timeString) {
-        const timeRegex = /^(0?[1-9]|1[0-2]):([0-5]\d)\s?(AM|PM)?$/i;
-        const match = timeString.match(timeRegex);
-
-        if (!match) {
-            return false;
-        }
-
-        const [reg, hourString, minuteString, meridiem] = match;
-        console.log(reg);
-        const hour = parseInt(hourString);
-        const minute = parseInt(minuteString);
-
-        if (hour > 12 || minute >= 60) {
-            return false;
-        }
-
-        const date = new Date();
-        date.setHours(hour + (meridiem === 'PM' && hour !== 12 ? 12 : 0));
-        date.setMinutes(minute);
-
-        return date.getHours() === hour && date.getMinutes() === minute;
     }
 
     handelMap(dataType, key) {
@@ -277,8 +250,4 @@ module.exports = class JsonToDartClassInfo {
         return array.find((data) => JSON.stringify(data.parameters) == jsonData)
     }
 
-    isInteger(n) {
-        return n === +n && n === (n | 0);
-    }
 }
-

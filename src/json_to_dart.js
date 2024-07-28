@@ -1,4 +1,5 @@
 const { yesPlease } = require(".");
+const { isDate, isTimeOfDay, isInteger } = require("./functions");
 
 const listRegExp = RegExp(/^List<[a-zA-Z]+[\?]{0,1}>[\?]{0,1}$/);
 module.exports = function generateClass(classInfo, genForms, jsonWild) {
@@ -16,26 +17,21 @@ import "package:power_geojson/power_geojson.dart";
 /*    
     ${jsonWild}
 */
-    ${classInfo.class.map((myClass) => {
+    ${classInfo.class.map((myClass, indx) => {
         const className = myClass.className
+        const classNameEnum = `${className}Enum`
         const params = myClass.parameters
         return `
-enum ${className}Enum{
-    ${params.map((parameter) => {
+
+class ${className} ${indx == 0 ? ' extends PharmagestAbstractModel' : ''} {
+${params.map((parameter) => {
             const paramName = parameter.name
-            return `${paramName},`
+            return `
+            ${myClass.mutable ? "" : "final"} ${parameter.dataType} ${paramName};`
         }).join("\n")
             }
-    none,
-}
-class ${className} {
-${params.map((parameter) => {
-                const paramName = parameter.name
-                return `
-            ${myClass.mutable ? "" : "final"} ${parameter.dataType} ${paramName};`
-            }).join("\n")
-            }
     ${myClass.mutable ? "" : "const"} ${className}({
+    ${indx == 0 ? 'required super.id,' : ''}
         ${params.map((parameter) => {
                 const reaq = !parameter.required ? '' : 'required'
                 return `\t\t${reaq} this.${parameter.name},`
@@ -52,60 +48,27 @@ ${params.map((parameter) => {
 
             }).join("\n")
             }}){
-    return ${className}(${params.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name},`).join("\n")});
+    return ${className}(
+    ${indx == 0 ? 'id: id,' : ''}
+    ${params.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name},`).join("\n")}
+    );
     }
         
     Map<String,Object?> toJson(){
         return {
-            ${params.map((parameter) => `${className}Enum.${parameter.name}.name: ${parameter.inbuilt ? parameter.name : toJsonForClass(parameter)}`).join(",\n")
+            ${params.map((parameter) => `${classNameEnum}.${parameter.name}.name: ${parameter.inbuilt ? parameter.name : toJsonForClass(parameter)}`).join(",\n")
 
             },};
 }
 
-${genForms === yesPlease ? `
-static  final  List<Widget> formElements = [
-  ${params.map((parameter) => {
-                const paramName = parameter.name
-                return `${parameter.entryClass}(
-        name: ${className}Enum.${paramName}.name ,
-        hintText: 'tr \${${className}Enum.${paramName}.name}' ,
-        labelText: 'tr \${${className}Enum.${paramName}.name}' ,
-        formEdition: null,
-        codeMatch: false,
-        optional: ${!parameter.required},
-        ),`
-            }).join("\n")
-                }
-];
-static Widget formCreation(GlobalKey formBuilderKey, {Map<String, Object?> initialValue = const {}}){
-    return FormBuilder(
-      key: formBuilderKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      initialValue: initialValue,
-      child: ListView.separated(
-        physics: NeverScrollableScrollPhysics(),
-        separatorBuilder: (context, index) => Gap(getPropHeight(30)),
-        itemBuilder: (context, index) => formElements.elementAt(index),
-        itemCount: formElements.length,
-        shrinkWrap: true,
-      ),
-    );
-}
-Widget formEdition({required FutureOr<bool> Function(${className} data) submit}){
-    return ${className}FormEdition(
-      initial: this,
-      submit: submit,
-    );
-}
-`: ''}
-
 factory ${className}.fromJson(Map<String , Object?> json){
     return ${className}(
+    ${indx == 0 ? `id: json['id'] as String,` : ''}
             ${params.map((parameter) => {
-                    const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
-                    const inBuilt = `${jsonKey} ${!parameter.required ? `==''?null:${jsonKey}` : ''} ${`as ${parameter.dataType}`}`;
-                    return `${parameter.name}:${parameter.inbuilt ? inBuilt : `${fromJsonForClass(parameter, myClass.className)}`}`;
-                }).join(",\n")},
+                const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
+                // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
+                return `${parameter.name}:${parameter.inbuilt ? getDartFromJSON(parameter, jsonKey) : `${fromJsonForClass(parameter, myClass.className)}`}`;
+            }).join(",\n")},
     );
 }
 @override
@@ -134,39 +97,62 @@ int get hashCode {
 }
     
 }
-extension ${className}Sort on List<${className}>{
-    List<${className}> sorty(${className}Enum caseField, {bool desc = false}){
-      return this
-      ..sort((a, b) {
-        int fact = (desc? -1 : 1);
-        switch (caseField) {
-          
-          ${params.filter(e => e.inbuilt).map((parameter) => {
-                    const paramName = parameter.name
-                    return `case ${className}Enum.${paramName}:
-            // ${parameter.sortable ? 'sortable' : 'unsortable'}
-            
-            ${parameter.sort != "" ? `
-            ${parameter.dataType} akey = a.${parameter.name};
-            ${parameter.dataType} bkey = b.${parameter.name};
-            ${parameter.sort}
-            ` : ''}
-            `
-                }).join("\n")
-            }
-          ${params.filter(e => !e.inbuilt).map((parameter) => {
+
+enum ${classNameEnum}{
+    ${params.map((parameter) => {
                 const paramName = parameter.name
-                return `case ${className}Enum.${paramName}:
-            // ${parameter.sortable ? 'sortable' : 'unsortable'}
-            `
+                return `${paramName},`
             }).join("\n")
             }
-            case ${className}Enum.none:
-            return 0;
-        }
-      });
-  }
+    none,
 }
+
+
+class ${className}_Views {
+final ${className} model;
+
+${className}_Views({required this.model});
+
+
+${genForms === yesPlease ? `
+static  final  List<Widget> formElements = [
+  ${params.map((parameter) => {
+                const paramName = parameter.name
+                return `${parameter.entryClass}(
+        name: ${classNameEnum}.${paramName}.name ,
+        hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
+        labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
+        formEdition: null,
+        codeMatch: false,
+        optional: ${!parameter.required},
+        ),`
+            }).join("\n")
+                }
+];
+static Widget formCreation(GlobalKey formBuilderKey, {Map<String, Object?> initialValue = const {}}){
+    return FormBuilder(
+      key: formBuilderKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      initialValue: initialValue,
+      child: ListView.separated(
+        physics: NeverScrollableScrollPhysics(),
+        separatorBuilder: (context, index) => Gap(getPropHeight(30)),
+        itemBuilder: (context, index) => formElements.elementAt(index),
+        itemCount: formElements.length,
+        shrinkWrap: true,
+      ),
+    );
+}
+Widget formEdition({required FutureOr<bool> Function(${className} data) submit}){
+    return ${className}FormEdition(
+      initial: model,
+      submit: submit,
+    );
+}
+`: ''}
+
+}
+
 ${genForms === yesPlease ? `
 
 class ${className}FormEdition extends StatefulHookWidget {
@@ -189,10 +175,9 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 
   final ValueNotifier<PhormState> phormState = useState(PhormState.none);
 
-  final ValueNotifier<${className}Enum> codeEdit = useState(${className}Enum.none);
+  final ValueNotifier<${classNameEnum}> codeEdit = useState(${classNameEnum}.none);
     final ValueNotifier<bool> changed = useState(false);
-    return StoreBuilder(builder: (BuildContext context, Store<AppState> store) {
-      return FormBuilder(
+    return FormBuilder(
         key: formKey,
         initialValue: widget.initial.toJson(),
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -224,9 +209,9 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
             ),
             ...[
                 ${params.map((parameter) => {
-                const paramName = parameter.name
-                return `Builder(builder: (context) {
-                ${className}Enum fieldCode = ${className}Enum.${paramName};
+                    const paramName = parameter.name
+                    return `Builder(builder: (context) {
+                ${classNameEnum} fieldCode = ${classNameEnum}.${paramName};
                 bool codeMatch = codeEdit.value == fieldCode;
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -236,8 +221,8 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                       paddingDivider(),
                       ${parameter.entryClass}(
                         name: fieldCode.name ,
-                    hintText: 'tr \${${className}Enum.${paramName}.name}' ,
-                    labelText: 'tr \${${className}Enum.${paramName}.name}' ,
+                    hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
+                    labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
                     optional: ${!parameter.required},
                         formEdition: GestureDetector(
                           child: Icon(
@@ -246,7 +231,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                           ),
                           onTap: () {
                             formKey.currentState?.save();
-                            codeMatch ? ${className}Enum.none : fieldCode;
+                            codeMatch ? ${classNameEnum}.none : fieldCode;
                           },
                         ),
                         codeMatch: codeMatch,
@@ -255,7 +240,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                 ),
                 );
               }),`
-            }).join("\n")
+                }).join("\n")
                 }
             ],
             Padding(
@@ -329,11 +314,43 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
           ],
         ),
       );
-    });
   }
 
 }
 `: ''}
+extension ${className}Sort on List<${className}>{
+    List<${className}> sorty(${classNameEnum} caseField, {bool desc = false}){
+      return this
+      ..sort((a, b) {
+        int fact = (desc? -1 : 1);
+        switch (caseField) {
+          
+          ${params.filter(e => e.inbuilt).map((parameter) => {
+                    const paramName = parameter.name
+                    return `case ${classNameEnum}.${paramName}:
+            // ${parameter.sortable ? 'sortable' : 'unsortable'}
+            
+            ${parameter.sort != "" ? `
+            ${parameter.dataType} akey = a.${parameter.name};
+            ${parameter.dataType} bkey = b.${parameter.name};
+            ${parameter.sort}
+            ` : ''}
+            `
+                }).join("\n")
+            }
+          ${params.filter(e => !e.inbuilt).map((parameter) => {
+                const paramName = parameter.name
+                return `case ${classNameEnum}.${paramName}:
+            // ${parameter.sortable ? 'sortable' : 'unsortable'}
+            `
+            }).join("\n")
+            }
+            case ${classNameEnum}.none:
+            return 0;
+        }
+      });
+  }
+}
       `
     }).join("\n")
         }
@@ -363,7 +380,7 @@ function toJsonForClass(parameter) {
 }
 function fromJsonForClass(parameter, className) {
     const asmap = ' as Map<String,Object?>';
-    const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
+    const jsonKey = `json[${classNameEnum}.${parameter.name}.name]`;
     const pfj = `${parameter.className}.fromJson`;
     const pl = `(${jsonKey} as List).map<${parameter.className}>((data)=> ${pfj}(data ${asmap})).toList()`;
     const isOptDataType = isOptionalDataType(parameter.dataType)
@@ -402,3 +419,41 @@ function checkType(variable) {
     }
 }
 
+
+function getDartFromJSON(p, key) {
+    switch (typeof (p.value)) {
+        case "string":
+            if (isDate(p.value)) {
+                return !p.required ? `DateTime.tryParse('\${${key}}')` : `DateTime.parse('\${${key}}')`;
+            }
+            else if (isTimeOfDay(p.value)) {
+                return !p.required ? `(DateTime${p.required ? '' : '?'} date){
+            if(date!==null){
+                    return TimeOfDay.fromDateTime(date);
+                }
+                    return null;
+            }(DateTime.tryParse('\${${key}}'))` : `TimeOfDay.fromDateTime(DateTime.parse('\${${key}}'))`;
+            }
+            return `${key} as String${p.required ? '' : '?'}`;
+        case "number":
+            if (isInteger(p.value)) {
+                return !p.required ? `int.tryParse('\${${key}}')` : `int.parse('\${${key}}')`;
+            }
+            return !p.required ? `double.tryParse('\${${key}}')` : `double.parse('\${${key}}')`;
+        case "boolean":
+            return `${key} as bool${p.required ? '' : '?'}`;
+        case "object":
+            if (Array.isArray(p.value)) {
+                return `(${key} as List<Object?>).map(
+                (el)=> ${getDartFromJSON({
+                    value: p.value[0],
+                    required: p.required,
+                }, 'el')}
+                ).toList()`
+            }
+
+            return key
+        default:
+            return key
+    }
+}
