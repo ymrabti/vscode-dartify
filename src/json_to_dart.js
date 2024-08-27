@@ -5,6 +5,9 @@ const listRegExp = RegExp(/^List<[a-zA-Z]+[\?]{0,1}>[\?]{0,1}$/);
 module.exports = function generateClass(classInfo, genForms, jsonWild) {
     return `
     ${genForms === yesPlease ? `
+import "package:collection/collection.dart";
+import "package:faker/faker.dart";
+import "package:flutter_screenutil/flutter_screenutil.dart";
 import "package:flutter/material.dart";
 import "package:flutter_form_builder/flutter_form_builder.dart";
 import "package:gap/gap.dart";
@@ -30,14 +33,14 @@ ${params.map((parameter) => {
             ${myClass.mutable ? "" : "final"} ${parameter.dataType} ${paramName};`
         }).join("\n")
             }
-    ${myClass.mutable ? "" : "const"} ${className}({
+     ${className}({
     ${indx == 0 ? 'required super.id,' : ''}
         ${params.map((parameter) => {
                 const reaq = !parameter.required ? '' : 'required'
                 return `\t\t${reaq} this.${parameter.name},`
             }).join("\n")
             }
-});
+    });
 
     ${className} copyWith({
         ${params.map((parameter) => {
@@ -48,53 +51,92 @@ ${params.map((parameter) => {
 
             }).join("\n")
             }}){
-    return ${className}(
-    ${indx == 0 ? 'id: id,' : ''}
-    ${params.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name},`).join("\n")}
-    );
+        return ${className}(
+        ${indx == 0 ? 'id: id,' : ''}
+        ${params.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name},`).join("\n")}
+        );
     }
-        
+    
+    @override
     Map<String,Object?> toJson(){
         return {
-            ${params.map((parameter) => `${classNameEnum}.${parameter.name}.name: ${parameter.inbuilt ? parameter.name : toJsonForClass(parameter)}`).join(",\n")
+            ${params.map((parameter) => {
+                var nullSafety = `${!parameter.required ? `if (${parameter.name} != null) ` : ''}`
+                return `${nullSafety}${classNameEnum}.${parameter.name}.name: ${parameter.inbuilt ? parameter.name : toJsonForClass(parameter)}`;
+            }).join(",\n")
 
-            },};
-}
+            },
+        };
+    }
 
-factory ${className}.fromJson(Map<String , Object?> json){
-    return ${className}(
+    @override
+    Map<String,Object?> toMap(){
+        return {
+            ${params.map((parameter) => {
+                var nullSafety = `${!parameter.required ? `if (${parameter.name} != null) ` : ''}`
+                return `${nullSafety}${classNameEnum}.${parameter.name}.name: ${parameter.name}${getToMAP(parameter.dataType)}`;
+            }).join(",\n")
+
+            },
+        };
+    }
+
+    factory ${className}.fromJson(Map<String , Object?> json){
+        return ${className}(
     ${indx == 0 ? `id: json['id'] as String,` : ''}
             ${params.map((parameter) => {
                 const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
                 // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
                 return `${parameter.name}:${parameter.inbuilt ? getDartFromJSON(parameter, jsonKey) : `${fromJsonForClass(parameter, myClass.className)}`}`;
             }).join(",\n")},
-    );
-}
-@override
-String toString(){
-    return PowerJSON(toJson()).toText();
-}
+        );
+    }
+
+    factory ${className}.fromMap(Map<String , Object?> json){
+        return ${className}(
+    ${indx == 0 ? `id: faker.guid.guid(),` : ''}
+            ${params.map((parameter) => {
+                const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
+                // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
+                return `${parameter.name}: ${jsonKey} as ${parameter.dataType}`;
+            }).join(",\n")},
+        );
+    }
+
+    /* factory ${className}.random(){
+        return ${className}(
+    ${indx == 0 ? `id: faker.guid.guid(),` : ''}
+            ${params.map((parameter) => {
+                const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
+                return `${parameter.name}: faker.${parameter.name}`;
+            }).join(",\n")},
+        );
+    }*/
+
+    @override
+    String toString(){
+        return PowerJSON(toJson()).toText();
+    }
 
 
-String stringify(){
-    return '${className}(${params.map((parameter) => `${parameter.name}:${parameter.inbuilt ? `$${parameter.name}` : `\${${parameter.name}.toString()\}`}`).join(", ")})';
-}
+    String stringify(){
+        return '${className}(${params.map((parameter) => `${parameter.name}:${parameter.inbuilt ? `$${parameter.name}` : `\${${parameter.name}.toString()\}`}`).join(", ")})';
+    }
 
-@override
-bool operator ==(Object other){
-    return other is ${className} && 
-        other.runtimeType == runtimeType &&
-        ${params.map((parameter) => `other.${parameter.name} == ${parameter.name}`).join(" &&// \n")};
-}
+    @override
+    bool operator ==(Object other){
+        return other is ${className} && 
+            other.runtimeType == runtimeType &&
+            ${params.map((parameter) => `other.${parameter.name} == ${parameter.name}`).join(" &&// \n")};
+    }
       
-@override
-int get hashCode {
-    return Object.hash(
-                runtimeType,
-                ${params.length < 20 ? params.map((parameter) => parameter.name).join(", \n") : params.slice(0, 19).map((parameter) => parameter.name).join(", \n")},
-    );
-}
+    @override
+    int get hashCode {
+        return Object.hash(
+            runtimeType,
+            ${params.length < 20 ? params.map((parameter) => parameter.name).join(", \n") : params.slice(0, 19).map((parameter) => parameter.name).join(", \n")},
+        );
+    }
     
 }
 
@@ -115,32 +157,10 @@ ${className}_Views({required this.model});
 
 
 ${genForms === yesPlease ? `
-static  final  List<Widget> formElements = [
-  ${params.map((parameter) => {
-                const paramName = parameter.name
-                return `${parameter.entryClass}(
-        name: ${classNameEnum}.${paramName}.name ,
-        hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
-        labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
-        formEdition: null,
-        codeMatch: false,
-        optional: ${!parameter.required},
-        ),`
-            }).join("\n")
-                }
-];
-static Widget formCreation(GlobalKey formBuilderKey, {Map<String, Object?> initialValue = const {}}){
-    return FormBuilder(
-      key: formBuilderKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      initialValue: initialValue,
-      child: ListView.separated(
-        physics: NeverScrollableScrollPhysics(),
-        separatorBuilder: (context, index) => Gap(getPropHeight(30)),
-        itemBuilder: (context, index) => formElements.elementAt(index),
-        itemCount: formElements.length,
-        shrinkWrap: true,
-      ),
+static Widget formCreation({required FutureOr<bool> Function(${className} data) submit, Map<String, Object?> initial = const {},}){
+    return ${className}FormCreation(
+      initial: initial,
+      submit: submit,
     );
 }
 Widget formEdition({required FutureOr<bool> Function(${className} data) submit}){
@@ -152,6 +172,137 @@ Widget formEdition({required FutureOr<bool> Function(${className} data) submit})
 `: ''}
 
 }
+
+${genForms === yesPlease ? `
+
+class ${className}FormCreation extends StatefulHookWidget {
+  const ${className}FormCreation({
+    Key? key,
+    this.initial = const {},
+    required this.submit,
+}) : super(key: key);
+  final Map<String, Object?> initial;
+  final FutureOr<bool> Function(${className} data) submit;
+  @override
+  State<StatefulWidget> createState() {
+    return _${className}FormCreationState();
+  }
+}
+class _${className}FormCreationState extends State<${className}FormCreation>{
+final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
+final _formElements = [
+${params.map((parameter) => {
+                const paramName = parameter.name
+                return `${parameter.entryClass}(
+      name: ${classNameEnum}.${paramName}.name ,
+      hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
+      labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
+      formEdition: null,
+      codeMatch: false,
+      optional: ${!parameter.required},
+      ),`
+            }).join("\n")
+                }
+];
+
+
+  final ScrollController _scrollController = ScrollController();
+  @override
+  Widget build(BuildContext context) {
+
+    List<Widget> items = [
+        Gap(12.h),
+        ..._formElements,
+    ];
+    return AppBarBuilderUI(
+      reversed: true,
+      scrollController: _scrollController,
+      appBarContent: (context, opacity, offset) => Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.0.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text /** TV **/ (
+              translate(AppTranslation.quickAcces),
+              textAlign: TextAlign.center,
+              textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
+              locale: Get.locale,
+              style: TextStyle(
+                fontSize: getPropWidth(20),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+      builder: (context, opacity, offset) => FormBuilder(
+        key: formKey,
+        initialValue: widget.initial,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        onChanged: () {
+        },
+        onWillPop: () async {
+          return !(formKey.currentState?.isDirty ?? false);
+        },
+        child: ReusableCustomScrollView(
+          scrollController: _scrollController,
+        fixedBottom: Row(
+            children: [
+            ElevatedButton(
+                onPressed: () async{
+                if (formKey.currentState?.validate() ?? false) {
+                    formKey.currentState?.save();
+                    ${className} formValue = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
+                    bool result = await widget.submit(formValue);
+                    logg(result);
+                } 
+                },
+                child: Row(
+                children: [
+                    Text /** TV **/ (
+                    translate(AppTranslation.valider),
+                    textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
+                    locale: Get.locale,
+                    ),
+                    Gap(10),
+                    Icon(
+                    CupertinoIcons.checkmark_alt_circle,
+                    color: primaryColor.shade300,
+                    ),
+                ],
+                ),
+            ),
+            Expanded(child: const SizedBox()),
+            TextButton(
+                onPressed: () {
+                formKey.currentState?.reset();
+                Get.back();
+                },
+                child: Text /** TV **/ (
+                translate(AppTranslation.cancel),
+                textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
+                locale: Get.locale,
+                ),
+            ),
+            ],
+        ),
+        children: items
+              .mapIndexed(
+                (i, e) => Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: i == 0 ? 24.h : 8.h),
+                  child: e,
+                ),
+              )
+              .toList()
+              .reversed
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+}
+`: ''}
 
 ${genForms === yesPlease ? `
 
@@ -183,7 +334,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
         autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: () {
           try {
-            ${className} change = ${className}.fromJson(formKey.currentState?.instantValue as Map<String, Object?>);
+            ${className} change = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
             changed.value = change != widget.initial;
           } catch (e) {
             changed.value = true;
@@ -196,9 +347,10 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              padding: EdgeInsets.symmetric(vertical: 10.0.sp),
               child: Text /** TV **/ (
-                translate(AppTranslation.accesRapide),
+                translate(AppTranslation.quickAcces),
+            textAlign: TextAlign.center,
                 textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
                 locale: Get.locale,
                 style: TextStyle(
@@ -214,7 +366,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                 ${classNameEnum} fieldCode = ${classNameEnum}.${paramName};
                 bool codeMatch = codeEdit.value == fieldCode;
                 return Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0.sp),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -244,7 +396,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                 }
             ],
             Padding(
-              padding: const EdgeInsets.all(14.0),
+              padding: EdgeInsets.all(14.0.sp),
               child: Visibility(
                 visible: phormState.value == PhormState.error,
                 child: labelRichText(
@@ -260,7 +412,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
             Visibility(
               visible: changed.value,
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: EdgeInsets.all(12.0.sp),
                 child: Row(
                   children: [
                     ElevatedButton(
@@ -268,7 +420,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                         if (formKey.currentState?.validate() ?? false) {
                           formKey.currentState?.save();
                           phormState.value = PhormState.valide;
-                          ${className} formValue = ${className}.fromJson(formKey.currentState?.instantValue as Map<String, Object?>);
+                          ${className} formValue = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
                           bool result = await widget.submit(formValue);
                           if (result) {
                             phormState.value = PhormState.valide;
@@ -380,7 +532,7 @@ function toJsonForClass(parameter) {
 }
 function fromJsonForClass(parameter, className) {
     const asmap = ' as Map<String,Object?>';
-    const jsonKey = `json[${classNameEnum}.${parameter.name}.name]`;
+    const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
     const pfj = `${parameter.className}.fromJson`;
     const pl = `(${jsonKey} as List).map<${parameter.className}>((data)=> ${pfj}(data ${asmap})).toList()`;
     const isOptDataType = isOptionalDataType(parameter.dataType)
@@ -395,6 +547,7 @@ function fromJsonForClass(parameter, className) {
 function isOptionalDataType(dataType) {
     return dataType.endsWith("?")
 }
+
 function checkType(variable) {
     if (variable === 'int') {
         return '0';
@@ -455,5 +608,20 @@ function getDartFromJSON(p, key) {
             return key
         default:
             return key
+    }
+}
+
+function getToMAP(dataType) {
+    switch (dataType) {
+        case "int":
+        case "int?":
+            return `.toString()`;
+
+        case "double":
+        case "double?":
+            return `.toStringAsFixed(2)`;
+
+        default:
+            return ''
     }
 }

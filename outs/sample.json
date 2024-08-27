@@ -1,0 +1,27 @@
+{
+    "nom$": "12:43",
+    "prenom$": "2023-12-13T21:43:23.907Z",
+    "_datee$": "2023-12-13T21:43:23.907Z",
+    "cIN$": "",
+    "age$": 765,
+    "_sexe": "",
+    "emailPersonnel": "",
+    "adressePersonnel": "",
+    "_ville": "",
+    "phonePersonnel": "",
+    "nomPharmacie": "",
+    "_numeroPatente": 1,
+    "emailProfessionnel": "",
+    "adressePharmacie": "",
+    "villePharmacie": "",
+    "phonePharmacie": "",
+    "objected": [
+        "phonePersonnel",
+        "nomPharmacie",
+        "numeroPatente",
+        "emailProfessionnel",
+        "adressePharmacie",
+        "villePharmacie",
+        "phonePharmacie"
+    ]
+}

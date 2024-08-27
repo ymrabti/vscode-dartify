@@ -120,14 +120,14 @@ module.exports = class JsonToDartClassInfo {
                     return 'FormPlusDateTimeField';
                 }
                 else if (isTimeOfDay(value)) {
-                    return 'FormPlusTimeField';
+                    return 'FormPlusDateTimeField';
                 }
                 return 'FormPlusTextField';
             case "number":
                 if (isInteger(value)) {
-                    return 'FormPlusIntField';
+                    return 'FormPlusNumericField<int>';
                 }
-                return 'FormPlusDoubleField';
+                return 'FormPlusNumericField<double>';
             case "boolean":
                 return 'FormPlusTimeField';
             default:

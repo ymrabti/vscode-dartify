@@ -18,7 +18,6 @@ function isTimeOfDay(timeString) {
     }
 
     const [reg, hourString, minuteString, meridiem] = match;
-    console.log(reg);
     const hour = parseInt(hourString);
     const minute = parseInt(minuteString);
 
