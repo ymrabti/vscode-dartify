@@ -2,13 +2,13 @@
     "name": "dartifyjson",
     "displayName": "DARTIFY",
     "description": "convert JSON data into DART data model",
-    "version": "0.3.8",
+    "version": "0.3.10",
     "scripts": {
         "test-dart-translations": "node src/example-dart-translations",
         "test-dart-class": "node src/example-dart-class",
         "preprebi": "echo \"Pre build install\"",
-        "prebi":"vsce package -o outs --no-yarn",
-        "bi": "code --install-extension outs/dartifyjson-0.3.8.vsix"
+        "prebi": "vsce package -o outs --no-yarn",
+        "bi": "code --install-extension outs/dartifyjson-0.3.10.vsix"
     },
     "engines": {
         "vscode": "^1.77.0"
@@ -84,5 +84,6 @@
     },
     "dependencies": {
         "module-alias": "2.2.3"
-    }
+    },
+    "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }

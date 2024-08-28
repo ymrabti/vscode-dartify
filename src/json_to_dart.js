@@ -1,7 +1,14 @@
 const { yesPlease } = require(".");
-const { isDate, isTimeOfDay, isInteger } = require("./functions");
+const { isDate,
+    isTimeOfDay,
+    isInteger,
+    getRandomIntInclusive,
+    isValidEmail,
+    isValidURL,
+    getRandomFactory,
+    listRegExp
+} = require("./functions");
 
-const listRegExp = RegExp(/^List<[a-zA-Z]+[\?]{0,1}>[\?]{0,1}$/);
 module.exports = function generateClass(classInfo, genForms, jsonWild) {
     return `
     ${genForms === yesPlease ? `
@@ -57,7 +64,7 @@ ${params.map((parameter) => {
         );
     }
     
-    @override
+    ${indx == 0 ? '@override' : ''}
     Map<String,Object?> toJson(){
         return {
             ${params.map((parameter) => {
@@ -69,7 +76,7 @@ ${params.map((parameter) => {
         };
     }
 
-    @override
+    ${indx == 0 ? '@override' : ''}
     Map<String,Object?> toMap(){
         return {
             ${params.map((parameter) => {
@@ -103,15 +110,14 @@ ${params.map((parameter) => {
         );
     }
 
-    /* factory ${className}.random(){
+    factory ${className}.random(){
         return ${className}(
     ${indx == 0 ? `id: faker.guid.guid(),` : ''}
             ${params.map((parameter) => {
-                const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
-                return `${parameter.name}: faker.${parameter.name}`;
+                return `${parameter.name}: ${getRandomFactory(parameter.value, parameter.name, parameter.dataType, !parameter.required)}`;
             }).join(",\n")},
         );
-    }*/
+    }
 
     @override
     String toString(){
@@ -194,7 +200,8 @@ final _formElements = [
 ${params.map((parameter) => {
                 const paramName = parameter.name
                 return `${parameter.entryClass}(
-      name: ${classNameEnum}.${paramName}.name ,
+                    name: ${classNameEnum}.${paramName}.name ,
+                    ${parameter.additional}
       hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
       labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
       formEdition: null,
@@ -246,33 +253,11 @@ ${params.map((parameter) => {
         },
         child: ReusableCustomScrollView(
           scrollController: _scrollController,
-        fixedBottom: Row(
+        fixedBottom: Padding(
+            padding:  EdgeInsets.all(8.0.sp),
+            child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-            ElevatedButton(
-                onPressed: () async{
-                if (formKey.currentState?.validate() ?? false) {
-                    formKey.currentState?.save();
-                    ${className} formValue = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
-                    bool result = await widget.submit(formValue);
-                    logg(result);
-                } 
-                },
-                child: Row(
-                children: [
-                    Text /** TV **/ (
-                    translate(AppTranslation.valider),
-                    textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
-                    locale: Get.locale,
-                    ),
-                    Gap(10),
-                    Icon(
-                    CupertinoIcons.checkmark_alt_circle,
-                    color: primaryColor.shade300,
-                    ),
-                ],
-                ),
-            ),
-            Expanded(child: const SizedBox()),
             TextButton(
                 onPressed: () {
                 formKey.currentState?.reset();
@@ -284,8 +269,36 @@ ${params.map((parameter) => {
                 locale: Get.locale,
                 ),
             ),
-            ],
+            ElevatedButton(
+                onPressed: () async{
+                if (formKey.currentState?.validate() ?? false) {
+                    formKey.currentState?.save();
+                    ${className} formValue = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
+                    bool result = await widget.submit(formValue);
+                    logg(result);
+                } 
+                },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(primaryColor),
+                    foregroundColor: MaterialStatePropertyAll(primaryColor.shade50),
+                  ),
+                child: Row(
+                children: [
+                    Text /** TV **/ (
+                    translate(AppTranslation.valider),
+                    textScaleFactor: 1.2,
+                    textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
+                    locale: Get.locale,
+                    ),
+                    Gap(10),
+                    Gap(10.sp),
+                    Icon(CupertinoIcons.checkmark_alt_circle),
+                ],
+                ),
+            ),
+        ],
         ),
+          ),
         children: items
               .mapIndexed(
                 (i, e) => Padding(
@@ -373,6 +386,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                       paddingDivider(),
                       ${parameter.entryClass}(
                         name: fieldCode.name ,
+                        ${parameter.additional}
                     hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
                     labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
                     optional: ${!parameter.required},
@@ -510,8 +524,6 @@ extension ${className}Sort on List<${className}>{
      `
 }
 
-
-
 function removeQuestion(str) {
     if (str.endsWith("?")) {
         return str.substring(0, str.length - 1)
@@ -530,6 +542,7 @@ function toJsonForClass(parameter) {
     }
     return `${parameter.name}.toJson()`
 }
+
 function fromJsonForClass(parameter, className) {
     const asmap = ' as Map<String,Object?>';
     const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
@@ -542,7 +555,6 @@ function fromJsonForClass(parameter, className) {
     }
     return isOptDataType ? `${jsonKey} == null ? ${checkedType} : ${pfj}(${jsonKey} ${asmap})` : `${pfj}(${jsonKey} ${asmap})`
 }
-
 
 function isOptionalDataType(dataType) {
     return dataType.endsWith("?")
@@ -559,7 +571,7 @@ function checkType(variable) {
         return '""';
     }
     if (listRegExp.test(variable)) {
-        return '[]';
+        return 'List.empty';
     }
     if (variable === 'bool') {
         return 'false';
@@ -571,7 +583,6 @@ function checkType(variable) {
         return `${removeQuestion(variable)}.fromJson({})`;
     }
 }
-
 
 function getDartFromJSON(p, key) {
     switch (typeof (p.value)) {

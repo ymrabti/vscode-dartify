@@ -1,5 +1,11 @@
 {
-    "nom$": "12:43",
-    "_datee$": "2023-12-13T21:43:23.907Z",
-    "cIN$": ""
+    "timeOnly$": "12:43",
+    "dateOnly$": "2023-12-13",
+    "dateTime$": "2023-12-13T21:43:23.907Z",
+    "obPerson$": {
+        "id": 1,
+        "name": "",
+        "dateNaissance": "1996-12-13"
+    },
+    "dateBool$": false
 }

@@ -5,7 +5,7 @@ const { yesPlease } = require('.');
 // const { resolve } = require('path');
 const generateClass = require("@src/json_to_dart");
 const JsonToDartClassInfo = require("@src/get_class_info_from_json");
-const json = require('@outs/example.json');
+const json = require('@outs/sample.json');
 function test() {
     const dartData = new JsonToDartClassInfo(json, "EPRSMPharmacienAdmin").result
     const dart = generateClass(dartData, yesPlease, JSON.stringify(json))

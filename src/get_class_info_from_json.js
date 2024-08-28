@@ -1,4 +1,9 @@
-const { isDate, isTimeOfDay, isInteger } = require("./functions");
+const { isDate,
+    isTimeOfDay,
+    isInteger,
+    getRandomIntInclusive,
+    getAdditionalParameters
+} = require("./functions");
 module.exports = class JsonToDartClassInfo {
     get result() {
         this.DartifyClassData.class.reverse()
@@ -38,7 +43,8 @@ module.exports = class JsonToDartClassInfo {
                     sortable,
                     value: element,
                     dataType: dartType,
-                    entryClass: this.getEntryClass(element),
+                    entryClass: this.getEntryClass(element, dartType),
+                    additional: getAdditionalParameters(element, dartType, name, optional),
                     inbuilt: className.inbuilt,
                     includeSearch: key.endsWith('$'),
                     className: className.className
@@ -113,7 +119,8 @@ module.exports = class JsonToDartClassInfo {
         }
     }
 
-    getEntryClass(value) {
+
+    getEntryClass(value, cls) {
         switch (typeof (value)) {
             case "string":
                 if (isDate(value)) {
@@ -129,9 +136,10 @@ module.exports = class JsonToDartClassInfo {
                 }
                 return 'FormPlusNumericField<double>';
             case "boolean":
-                return 'FormPlusTimeField';
+                return 'FormPlusCheckbox';
             default:
-                return 'FormPlusTextField';
+                const local = typeof (cls) == 'object' && !Array.isArray(cls) ? cls : cls.replace('List<', '').replace('>', '');
+                return `FormPlusSearchableDropdown<${local}, dynamic>`;
         }
     }
 
@@ -249,5 +257,4 @@ module.exports = class JsonToDartClassInfo {
         let jsonData = JSON.stringify(search.parameters)
         return array.find((data) => JSON.stringify(data.parameters) == jsonData)
     }
-
 }
