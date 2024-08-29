@@ -269,7 +269,7 @@ ${params.map((parameter) => {
                 locale: Get.locale,
                 ),
             ),
-            ElevatedButton(
+            ElevatedButton(/* FormCreation */
                 onPressed: () async{
                 if (formKey.currentState?.validate() ?? false) {
                     formKey.currentState?.save();
@@ -334,57 +334,20 @@ class ${className}FormEdition extends StatefulHookWidget {
 }
 class _${className}FormEditionState extends State<${className}FormEdition>{
 final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
+
+
+  final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-
   final ValueNotifier<PhormState> phormState = useState(PhormState.none);
-
   final ValueNotifier<${classNameEnum}> codeEdit = useState(${classNameEnum}.none);
-    final ValueNotifier<bool> changed = useState(false);
-    return FormBuilder(
-        key: formKey,
-        initialValue: widget.initial.toJson(),
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        onChanged: () {
-          try {
-            ${className} change = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
-            changed.value = change != widget.initial;
-          } catch (e) {
-            changed.value = true;
-            phormState.value = PhormState.error;
-          }
-        },
-        onWillPop: () async {
-          return !changed.value;
-        },
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0.sp),
-              child: Text /** TV **/ (
-                translate(AppTranslation.quickAcces),
-            textAlign: TextAlign.center,
-                textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
-                locale: Get.locale,
-                style: TextStyle(
-                  fontSize: getPropWidth(20),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ...[
+  final List<Widget> editionFormElements = [
                 ${params.map((parameter) => {
                     const paramName = parameter.name
                     return `Builder(builder: (context) {
                 ${classNameEnum} fieldCode = ${classNameEnum}.${paramName};
                 bool codeMatch = codeEdit.value == fieldCode;
-                return Padding(
-                  padding: EdgeInsets.all(8.0.sp),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      paddingDivider(),
-                      ${parameter.entryClass}(
+                    return ${parameter.entryClass}(
                         name: fieldCode.name ,
                         ${parameter.additional}
                     hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
@@ -397,18 +360,14 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                           ),
                           onTap: () {
                             formKey.currentState?.save();
-                            codeMatch ? ${classNameEnum}.none : fieldCode;
+                            codeEdit.value = codeMatch ? ${classNameEnum}.none : fieldCode;
                           },
                         ),
                         codeMatch: codeMatch,
-                      ),
-                    ],
-                ),
-                );
+                      );
               }),`
                 }).join("\n")
                 }
-            ],
             Padding(
               padding: EdgeInsets.all(14.0.sp),
               child: Visibility(
@@ -423,14 +382,68 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                 ),
               ),
             ),
-            Visibility(
-              visible: changed.value,
-              child: Padding(
-                padding: EdgeInsets.all(12.0.sp),
+            ];
+
+    final ValueNotifier<bool> changed = useState(false);
+    return AppBarBuilderUI(
+      reversed: true,
+      scrollController: _scrollController,
+      appBarContent: (context, opacity, offset) => Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.0.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+              Text /** TV **/ (
+                translate(AppTranslation.quickAcces),
+                textAlign: TextAlign.center,
+                textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
+                locale: Get.locale,
+                style: TextStyle(
+                  fontSize: getPropWidth(20),
+                  fontWeight: FontWeight.bold,
+                ),
+               ),
+          ],
+        ),
+      ),
+      builder: (context, opacity, offset) => Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0.w),
+                  child: FormBuilder(
+        key: formKey,
+        initialValue: widget.initial.toMap(),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        onChanged: () {
+          try {
+            ${className} change = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
+            changed.value = change != widget.initial;
+          } catch (e) {
+            changed.value = true;
+            phormState.value = PhormState.error;
+          }
+        },
+        onWillPop: () async {
+          return !changed.value;
+        },
+        child: ReusableCustomScrollView(
+          scrollController: _scrollController,
+          fixedBottom: Padding(
+                padding: EdgeInsets.all(8.0.sp),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    TextButton(
+                      onPressed: () {
+                        formKey.currentState?.reset();
+                        changed.value = false;
+                      },
+                      child: Text /** TV **/ (
+                        translate(AppTranslation.cancel),
+                        textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
+                        locale: Get.locale,
+                      ),
+                    ),
                     ElevatedButton(
-                      onPressed: () async{
+                      onPressed:!changed.value?null: () async{
                         if (formKey.currentState?.validate() ?? false) {
                           formKey.currentState?.save();
                           phormState.value = PhormState.valide;
@@ -446,6 +459,10 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                           phormState.value = PhormState.error;
                         }
                       },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(primaryColor),
+                    foregroundColor: MaterialStatePropertyAll(primaryColor.shade50),
+                  ),
                       child: Row(
                         children: [
                           Text /** TV **/ (
@@ -456,30 +473,24 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                           Gap(10),
                           Icon(
                             CupertinoIcons.checkmark_alt_circle,
-                            color: primaryColor.shade300,
                           ),
                         ],
-                      ),
-                    ),
-                    Expanded(child: const SizedBox()),
-                    TextButton(
-                      onPressed: () {
-                        formKey.currentState?.reset();
-                        changed.value = false;
-                      },
-                      child: Text /** TV **/ (
-                        translate(AppTranslation.cancel),
-                        textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
-                        locale: Get.locale,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+          children: editionFormElements
+              .joinByBuilder(
+                (i) => Gap(i == 0 ? 30.h : 15.h),
+              )
+              .toList()
+              .reversed
+              .toList(),
         ),
-      );
+      ),
+                ),
+    );
   }
 
 }
@@ -627,6 +638,9 @@ function getToMAP(dataType) {
         case "int":
         case "int?":
             return `.toString()`;
+        case "TimeOfDay":
+        case "TimeOfDay?":
+            return `.toDateTime()`;
 
         case "double":
         case "double?":
