@@ -8,10 +8,9 @@ const json = require('@outs/translations.json');
 const { JsonToTranslations } = require('@src/generate_translations');
 function test() {
     const dartData = new JsonToTranslations(json).result
-    const dart = generateClass(dartData, yesPlease)
-    const farma = 'C:/Users/youmt/Programminng/Flutter/my-apps/pharmagest/lib/espace_personel/profile_test_section.dart'
+    const farma = 'C:/Users/youmt/Programminng/Flutter/my-apps/pharmagest/lib/espace_personel/profile_test_trans.dart'
     writeFile(farma,
-        dart, (err) => {
+        dartData, (err) => {
             if (err) {
                 console.error(err);
                 return;
@@ -19,6 +18,6 @@ function test() {
             console.log('Data has been written to file');
         }
     );
-    return dart;
+    return dartData;
 }
 test()

@@ -19,7 +19,8 @@ class JsonToTranslations {
         }, []);
         const enumExport = unics.map(e => {
             const camel = to_camelCase(e);
-            return ({ 'key': camel, 'fr': e.replace(/\s/g, ' '), 'ar': '', 'en': '' });
+            console.log({ e: e });
+            return ({ 'key': camel, 'fr': e.fr.replace(/\s/g, ' '), 'ar': '', 'en': '' });
         });
         this.DartifyTranslations = JSON.stringify(enumExport);
     }
@@ -29,7 +30,7 @@ function convertLettersREGEX(text) {
     // Use a regular expression to match all letter derivants
     const regex = /[ÀÁÂÃÄÅàáâãäåÈÉÊËèéêëÌÍÎÏìíîïÒÓÔÕÖØòóôõöøÙÚÛÜùúûüÇçÑñ]/g;
     // Replace all letter derivants with their corresponding letters using a regular expression
-    return text.replace(regex, (char) =>
+    return text.key.replace(regex, (char) =>
         // Use a regular expression to determine the corresponding letter for each derivant
         char.replace(/À|Á|Â|Ã|Ä|Å/g, 'A')
             .replace(/à|á|â|ã|ä|å/g, 'a')

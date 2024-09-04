@@ -2,7 +2,8 @@ const { isDate,
     isTimeOfDay,
     isInteger,
     getRandomIntInclusive,
-    getAdditionalParameters
+    getAdditionalParameters,
+    isValidPhoneNumber
 } = require("./functions");
 module.exports = class JsonToDartClassInfo {
     get result() {
@@ -129,6 +130,9 @@ module.exports = class JsonToDartClassInfo {
                 else if (isTimeOfDay(value)) {
                     return 'FormPlusDateTimeField';
                 }
+                /* else if (isValidPhoneNumber(value)) {
+                    return 'FormPlusPhoneField';
+                } */
                 return 'FormPlusTextField';
             case "number":
                 if (isInteger(value)) {

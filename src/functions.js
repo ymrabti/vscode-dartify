@@ -47,7 +47,11 @@ function isValidEmail(input) {
 function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
+function isValidPhoneNumber(input) {
+    // Regular expression for phone number validation
+    const phoneRegex = /^(?:\+?\d{1,3})?[-.\s]?(?:\(?\d{1,4}\)?)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+    return phoneRegex.test(input);
+}
 /**
  * 
  * @param {any} value 
@@ -159,6 +163,7 @@ module.exports = {
     isValidURL,
     getRandomIntInclusive,
     getRandomFactory,
+    isValidPhoneNumber,
     getAdditionalParameters,
     listRegExp
 }

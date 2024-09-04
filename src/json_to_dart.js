@@ -25,7 +25,7 @@ import "package:power_geojson/power_geojson.dart";
 `: ''}
     
 /*    
-    ${jsonWild}
+    ${JSON.stringify(jsonWild)}
 */
     ${classInfo.class.map((myClass, indx) => {
         const className = myClass.className
@@ -204,8 +204,6 @@ ${params.map((parameter) => {
                     ${parameter.additional}
       hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
       labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
-      formEdition: null,
-      codeMatch: false,
       optional: ${!parameter.required},
       ),`
             }).join("\n")
@@ -216,7 +214,6 @@ ${params.map((parameter) => {
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-
     List<Widget> items = [
         Gap(12.h),
         ..._formElements,
@@ -340,32 +337,17 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
   @override
   Widget build(BuildContext context) {
   final ValueNotifier<PhormState> phormState = useState(PhormState.none);
-  final ValueNotifier<${classNameEnum}> codeEdit = useState(${classNameEnum}.none);
   final List<Widget> editionFormElements = [
                 ${params.map((parameter) => {
                     const paramName = parameter.name
-                    return `Builder(builder: (context) {
-                ${classNameEnum} fieldCode = ${classNameEnum}.${paramName};
-                bool codeMatch = codeEdit.value == fieldCode;
-                    return ${parameter.entryClass}(
-                        name: fieldCode.name ,
+                    return `${parameter.entryClass}(
+                        name: ${classNameEnum}.${paramName}.name ,
                         ${parameter.additional}
                     hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
                     labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
                     optional: ${!parameter.required},
-                        formEdition: GestureDetector(
-                          child: Icon(
-                            codeMatch ? Icons.check : CupertinoIcons.pencil_circle,
-                            color: primaryColor,
-                          ),
-                          onTap: () {
-                            formKey.currentState?.save();
-                            codeEdit.value = codeMatch ? ${classNameEnum}.none : fieldCode;
-                          },
-                        ),
-                        codeMatch: codeMatch,
-                      );
-              }),`
+                        formEdition: true,
+                      ),`
                 }).join("\n")
                 }
             Padding(
@@ -416,6 +398,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
           try {
             ${className} change = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
             changed.value = change != widget.initial;
+            phormState.value = PhormState.valide;
           } catch (e) {
             changed.value = true;
             phormState.value = PhormState.error;
@@ -459,10 +442,10 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                           phormState.value = PhormState.error;
                         }
                       },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(primaryColor),
-                    foregroundColor: MaterialStatePropertyAll(primaryColor.shade50),
-                  ),
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStatePropertyAll(phormState.value.phormColor),
+                            foregroundColor: MaterialStatePropertyAll(primaryColor.shade50),
+                        ),
                       child: Row(
                         children: [
                           Text /** TV **/ (
