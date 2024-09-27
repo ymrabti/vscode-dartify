@@ -11,17 +11,18 @@ const { isDate,
 
 module.exports = function generateClass(classInfo, genForms, jsonWild) {
     return `
-    ${genForms === yesPlease ? `
-import "package:collection/collection.dart";
-import "package:faker/faker.dart";
-import "package:flutter_screenutil/flutter_screenutil.dart";
+import 'package:flutter/foundation.dart' show listEquals;
+import "package:pharmagest/lib.dart";
 import "package:flutter/material.dart";
+import "package:faker/faker.dart";
+import "package:power_geojson/power_geojson.dart";
+${genForms === yesPlease ? `
+import "package:collection/collection.dart";
+import "package:flutter_screenutil/flutter_screenutil.dart";
 import "package:flutter_form_builder/flutter_form_builder.dart";
 import "package:gap/gap.dart";
 import "dart:async";
-import "package:flutter_hooks/flutter_hooks.dart" hide Store;
-import "package:pharmagest/lib.dart";
-import "package:power_geojson/power_geojson.dart";
+import "package:form_plus/form_plus.dart";
 `: ''}
     
 /*    
@@ -146,6 +147,60 @@ ${params.map((parameter) => {
     
 }
 
+
+
+
+
+class ScreenClassReducer${className} extends PharmagestAbstractClass<${className}> {
+  ScreenClassReducer${className}({
+    required super.listItems,
+    required super.sortFieldEnum,
+    required super.sortDescending,
+  });
+
+  @override
+  ScreenClassReducer${className} copyWith({
+    bool? sortDescending,
+    String? sortFieldEnum,
+    List<${className}>? listItems,
+  }) {
+    return ScreenClassReducer${className}(
+      listItems: listItems ?? this.listItems,
+      sortDescending: sortDescending ?? this.sortDescending,
+      sortFieldEnum: sortFieldEnum ?? this.sortFieldEnum,
+    );
+  }
+
+  @override
+  bool operator ==(covariant ScreenClassReducer${className} other) {
+    if (identical(this, other)) return true;
+    return listEquals(other.listItems, listItems) && other.sortDescending == sortDescending && other.selectionMode == selectionMode && other.sortFieldEnum == sortFieldEnum;
+  }
+
+  @override
+  int get hashCode {
+    return listItems.hashCode ^ sortDescending.hashCode ^ selectionMode.hashCode ^ sortFieldEnum.hashCode;
+  }
+
+  @override
+  List<${className}> sorty(
+    String caseField, {
+    bool desc = false,
+  }) {
+    return listItems.sorty(caseField, desc: desc);
+  }
+}
+
+ScreenClassReducer${className} reducerScreenClass${className}(ScreenClassReducer${className} state, Object action,) {
+  var reducer = PharmagestAbstractReducer<${className}>().reducer(state, action);
+  return reducer as ScreenClassReducer${className};
+}
+
+
+
+
+
+
 enum ${classNameEnum}{
     ${params.map((parameter) => {
                 const paramName = parameter.name
@@ -181,7 +236,7 @@ Widget formEdition({required FutureOr<bool> Function(${className} data) submit})
 
 ${genForms === yesPlease ? `
 
-class ${className}FormCreation extends StatefulHookWidget {
+class ${className}FormCreation extends StatefulWidget {
   const ${className}FormCreation({
     Key? key,
     this.initial = const {},
@@ -203,7 +258,7 @@ ${params.map((parameter) => {
                     name: ${classNameEnum}.${paramName}.name ,
                     ${parameter.additional}
       hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
-      labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
+      label: 'tr \${${classNameEnum}.${paramName}.name}' ,
       optional: ${!parameter.required},
       ),`
             }).join("\n")
@@ -316,7 +371,7 @@ ${params.map((parameter) => {
 
 ${genForms === yesPlease ? `
 
-class ${className}FormEdition extends StatefulHookWidget {
+class ${className}FormEdition extends StatefulWidget {
   const ${className}FormEdition({
     Key? key,
     required this.initial,
@@ -336,7 +391,6 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-  final ValueNotifier<PhormState> phormState = useState(PhormState.none);
   final List<Widget> editionFormElements = [
                 ${params.map((parameter) => {
                     const paramName = parameter.name
@@ -344,29 +398,15 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                         name: ${classNameEnum}.${paramName}.name ,
                         ${parameter.additional}
                     hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
-                    labelText: 'tr \${${classNameEnum}.${paramName}.name}' ,
+                    label: 'tr \${${classNameEnum}.${paramName}.name}' ,
                     optional: ${!parameter.required},
                         formEdition: true,
                       ),`
                 }).join("\n")
                 }
-            Padding(
-              padding: EdgeInsets.all(14.0.sp),
-              child: Visibility(
-                visible: phormState.value == PhormState.error,
-                child: labelRichText(
-                  required: false,
-                  text: translate(AppTranslation.erreurValidationFormule),
-                  textStyle: TextStyle(
-                    color: Colors.red,
-                    fontSize: getPropWidth(25),
-                  ),
-                ),
-              ),
-            ),
+            formKey.showErrors,
             ];
 
-    final ValueNotifier<bool> changed = useState(false);
     return AppBarBuilderUI(
       reversed: true,
       scrollController: _scrollController,
@@ -396,16 +436,14 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
         autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: () {
           try {
-            ${className} change = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
-            changed.value = change != widget.initial;
-            phormState.value = PhormState.valide;
+            // ${className} change = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
+            // change d.value = change != widget.initial;
           } catch (e) {
-            changed.value = true;
-            phormState.value = PhormState.error;
+            // chang ed.value = true;
           }
         },
         onWillPop: () async {
-          return !changed.value;
+              return !formKey.touched;
         },
         child: ReusableCustomScrollView(
           scrollController: _scrollController,
@@ -417,7 +455,6 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                     TextButton(
                       onPressed: () {
                         formKey.currentState?.reset();
-                        changed.value = false;
                       },
                       child: Text /** TV **/ (
                         translate(AppTranslation.cancel),
@@ -426,24 +463,20 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                       ),
                     ),
                     ElevatedButton(
-                      onPressed:!changed.value?null: () async{
+                    onPressed: !formKey.touched?null:
+                    () async {
                         if (formKey.currentState?.validate() ?? false) {
                           formKey.currentState?.save();
-                          phormState.value = PhormState.valide;
                           ${className} formValue = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
                           bool result = await widget.submit(formValue);
                           if (result) {
-                            phormState.value = PhormState.valide;
-                            changed.value = false;
                           } else {
-                            phormState.value = PhormState.error;
                           }
                         } else {
-                          phormState.value = PhormState.error;
                         }
                       },
                         style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(phormState.value.phormColor),
+                            backgroundColor: MaterialStatePropertyAll(formKey.formplusColorValue),
                             foregroundColor: MaterialStatePropertyAll(primaryColor.shade50),
                         ),
                       child: Row(
@@ -479,22 +512,22 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 }
 `: ''}
 extension ${className}Sort on List<${className}>{
-    List<${className}> sorty(${classNameEnum} caseField, {bool desc = false}){
+    List<${className}> sorty(String caseField, {bool desc = false}){
       return this
       ..sort((a, b) {
         int fact = (desc? -1 : 1);
-        switch (caseField) {
+        
           
           ${params.filter(e => e.inbuilt).map((parameter) => {
                     const paramName = parameter.name
-                    return `case ${classNameEnum}.${paramName}:
+                    return `if(caseField== ${classNameEnum}.${paramName}.name){
             // ${parameter.sortable ? 'sortable' : 'unsortable'}
             
             ${parameter.sort != "" ? `
             ${parameter.dataType} akey = a.${parameter.name};
             ${parameter.dataType} bkey = b.${parameter.name};
             ${parameter.sort}
-            ` : ''}
+          }` : ''}
             `
                 }).join("\n")
             }
@@ -505,9 +538,8 @@ extension ${className}Sort on List<${className}>{
             `
             }).join("\n")
             }
-            case ${classNameEnum}.none:
             return 0;
-        }
+        
       });
   }
 }
