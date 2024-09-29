@@ -10,6 +10,7 @@ const { isDate,
 } = require("./functions");
 
 module.exports = function generateClass(classInfo, genForms, jsonWild) {
+    const parsse = JSON.parse(jsonWild);
     return `
 import 'package:flutter/foundation.dart' show listEquals;
 import "package:pharmagest/lib.dart";
@@ -26,7 +27,7 @@ import "package:form_plus/form_plus.dart";
 `: ''}
     
 /*    
-    ${JSON.stringify(jsonWild)}
+${JSON.stringify(typeof jsonWild == 'string' ? parsse : jsonWild, (key, value) => value, 4)}
 */
     ${classInfo.class.map((myClass, indx) => {
         const className = myClass.className
@@ -234,6 +235,38 @@ enum ${classNameEnum}{
 }
 
 
+extension ${classNameEnum}X on ${classNameEnum}{
+    String get labelTranslation{
+    switch(this){
+    ${params.map((parameter) => {
+                const paramName = parameter.name
+                return `case ${classNameEnum}.${paramName}:
+        
+        return translate(AppTranslation.${paramName});`
+            }).join("\n")
+
+            }
+            default:
+        return name;
+            }
+    }
+    String get hintTranslation{
+    switch(this){
+    ${params.map((parameter) => {
+                const paramName = parameter.name
+                return `case ${classNameEnum}.${paramName}:
+        
+        return translate(AppTranslation.${paramName});`
+            }).join("\n")
+
+            }
+            default:
+        return name;
+            }
+    }
+}
+
+
 class ${className}_Views {
 final ${className} model;
 
@@ -280,8 +313,8 @@ ${params.map((parameter) => {
                 return `${parameter.entryClass}(
                     name: ${classNameEnum}.${paramName}.name ,
                     ${parameter.additional}
-      hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
-      label: 'tr \${${classNameEnum}.${paramName}.name}' ,
+      hintText: ${classNameEnum}.${paramName}.hintTranslation ,
+      label: ${classNameEnum}.${paramName}.labelTranslation ,
       optional: ${!parameter.required},
       ),`
             }).join("\n")
@@ -420,8 +453,8 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                     return `${parameter.entryClass}(
                         name: ${classNameEnum}.${paramName}.name ,
                         ${parameter.additional}
-                    hintText: 'tr \${${classNameEnum}.${paramName}.name}' ,
-                    label: 'tr \${${classNameEnum}.${paramName}.name}' ,
+                    hintText: ${classNameEnum}.${paramName}.hintTranslation ,
+                    label: ${classNameEnum}.${paramName}.labelTranslation ,
                     optional: ${!parameter.required},
                         formEdition: true,
                       ),`
