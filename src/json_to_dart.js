@@ -10,7 +10,6 @@ const { isDate,
 } = require("./functions");
 
 module.exports = function generateClass(classInfo, genForms, jsonWild) {
-    const parsse = JSON.parse(jsonWild);
     return `
 import 'package:flutter/foundation.dart' show listEquals;
 import "package:pharmagest/lib.dart";
@@ -27,7 +26,7 @@ import "package:form_plus/form_plus.dart";
 `: ''}
     
 /*    
-${JSON.stringify(typeof jsonWild == 'string' ? parsse : jsonWild, (key, value) => value, 4)}
+${JSON.stringify(typeof jsonWild == 'string' ? JSON.parse(jsonWild) : jsonWild, (key, value) => value, 4)}
 */
     ${classInfo.class.map((myClass, indx) => {
         const className = myClass.className
@@ -192,7 +191,7 @@ class ScreenState${className} extends PharmagestAbstractClass<${className}> {
   static ScreenState${className} emptyState() => ScreenState${className}(
         listItems: List.empty(),
         sortDescending: false,
-        sortFieldEnum: EPH_M_SSupp_InvoiceEnum.dateCreation.name,
+        sortFieldEnum: ${classNameEnum}.dateCreation.name,
       );
       
   @override
