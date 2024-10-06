@@ -11,9 +11,9 @@ const { isDate,
 
 module.exports = function generateClass(classInfo, genForms, jsonWild) {
     return `
+import "package:flutter/material.dart";
 import 'package:flutter/foundation.dart' show listEquals;
 import "package:pharmagest/lib.dart";
-import "package:flutter/material.dart";
 import "package:faker/faker.dart";
 import "package:power_geojson/power_geojson.dart";
 ${genForms === yesPlease ? `
@@ -34,7 +34,7 @@ ${JSON.stringify(typeof jsonWild == 'string' ? JSON.parse(jsonWild) : jsonWild, 
         const params = myClass.parameters
         return `
 
-class ${className} ${indx == 0 ? ' extends PharmagestAbstractModel' : ''} {
+class ${className} ${indx == 0 && genForms == yesPlease ? ' extends PharmagestAbstractModel' : ''} {
 ${params.map((parameter) => {
             const paramName = parameter.name
             return `
@@ -42,7 +42,7 @@ ${params.map((parameter) => {
         }).join("\n")
             }
      ${className}({
-    ${indx == 0 ? 'required super.id,' : ''}
+    ${indx == 0 && genForms == yesPlease ? 'required super.id,' : ''}
         ${params.map((parameter) => {
                 const reaq = !parameter.required ? '' : 'required'
                 return `\t\t${reaq} this.${parameter.name},`
@@ -60,12 +60,12 @@ ${params.map((parameter) => {
             }).join("\n")
             }}){
         return ${className}(
-        ${indx == 0 ? 'id: id,' : ''}
+        ${indx == 0 && genForms == yesPlease ? 'id: id,' : ''}
         ${params.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name},`).join("\n")}
         );
     }
     
-    ${indx == 0 ? '@override' : ''}
+    ${indx == 0 && genForms == yesPlease ? '@override' : ''}
     Map<String,Object?> toJson(){
         return {
             ${params.map((parameter) => {
@@ -77,48 +77,48 @@ ${params.map((parameter) => {
         };
     }
 
-    ${indx == 0 ? '@override' : ''}
-    Map<String,Object?> toMap(){
+    ${indx == 0 && genForms == yesPlease ? '@override' : ''}
+    ${genForms === yesPlease ? `Map<String,Object?> toMap(){
         return {
             ${params.map((parameter) => {
                 var nullSafety = `${!parameter.required ? `if (${parameter.name} != null) ` : ''}`
                 return `${nullSafety}${classNameEnum}.${parameter.name}.name: ${parameter.name}${getToMAP(parameter.dataType)}`;
             }).join(",\n")
 
-            },
+                },
         };
-    }
+    }`: ''}
 
     factory ${className}.fromJson(Map<String , Object?> json){
         return ${className}(
-    ${indx == 0 ? `id: json['id'] as String,` : ''}
+    ${indx == 0 && genForms == yesPlease ? `id: json['id'] as String,` : ''}
             ${params.map((parameter) => {
-                const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
-                // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
-                return `${parameter.name}:${parameter.inbuilt ? getDartFromJSON(parameter, jsonKey) : `${fromJsonForClass(parameter, myClass.className)}`}`;
-            }).join(",\n")},
+                    const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
+                    // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
+                    return `${parameter.name}:${parameter.inbuilt ? getDartFromJSON(parameter, jsonKey) : `${fromJsonForClass(parameter, myClass.className)}`}`;
+                }).join(",\n")},
         );
     }
 
     factory ${className}.fromMap(Map<String , Object?> json){
         return ${className}(
-    ${indx == 0 ? `id: faker.guid.guid(),` : ''}
+    ${indx == 0 && genForms == yesPlease ? `id: faker.guid.guid(),` : ''}
             ${params.map((parameter) => {
-                const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
-                // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
-                return `${parameter.name}: ${jsonKey} as ${parameter.dataType}`;
-            }).join(",\n")},
+                    const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
+                    // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
+                    return `${parameter.name}: ${jsonKey} as ${parameter.dataType}`;
+                }).join(",\n")},
         );
     }
 
-    factory ${className}.random(){
+    ${genForms === yesPlease ? `factory ${className}.random(){
         return ${className}(
-    ${indx == 0 ? `id: faker.guid.guid(),` : ''}
+    ${indx == 0 && genForms == yesPlease ? `id: faker.guid.guid(),` : ''}
             ${params.map((parameter) => {
-                return `${parameter.name}: ${getRandomFactory(parameter.value, parameter.name, parameter.dataType, !parameter.required)}`;
-            }).join(",\n")},
+                    return `${parameter.name}: ${getRandomFactory(parameter.value, parameter.name, parameter.dataType, !parameter.required)}`;
+                }).join(",\n")},
         );
-    }
+    }`: ''}
 
     @override
     String toString(){
@@ -148,7 +148,7 @@ ${params.map((parameter) => {
 }
 
 
-
+${genForms === yesPlease ? `
 
 
 class ScreenState${className} extends PharmagestAbstractClass<${className}> {
@@ -219,22 +219,22 @@ ScreenState${className} reducerScreenClass${className}(ScreenState${className} s
   return reducer as ScreenState${className};
 }
 
-
+`: ''}
 
 
 
 
 enum ${classNameEnum}{
     ${params.map((parameter) => {
-                const paramName = parameter.name
-                return `${paramName},`
-            }).join("\n")
+                    const paramName = parameter.name
+                    return `${paramName},`
+                }).join("\n")
             }
     none,
 }
 
 
-extension ${classNameEnum}X on ${classNameEnum}{
+${genForms === yesPlease ? `extension ${classNameEnum}X on ${classNameEnum}{
     String get labelTranslation{
     switch(this){
     ${params.map((parameter) => {
@@ -244,7 +244,7 @@ extension ${classNameEnum}X on ${classNameEnum}{
         return translate(AppTranslation.${paramName});`
             }).join("\n")
 
-            }
+                }
             default:
         return name;
             }
@@ -252,27 +252,27 @@ extension ${classNameEnum}X on ${classNameEnum}{
     String get hintTranslation{
     switch(this){
     ${params.map((parameter) => {
-                const paramName = parameter.name
-                return `case ${classNameEnum}.${paramName}:
+                    const paramName = parameter.name
+                    return `case ${classNameEnum}.${paramName}:
         
         return translate(AppTranslation.${paramName});`
-            }).join("\n")
+                }).join("\n")
 
-            }
+                }
             default:
         return name;
             }
     }
-}
+}`: ''}
 
 
-class ${className}_Views {
+${genForms === yesPlease ? `class ${className}_Views {
 final ${className} model;
 
 ${className}_Views({required this.model});
 
 
-${genForms === yesPlease ? `
+
 static Widget formCreation({required FutureOr<bool> Function(${className} data) submit, Map<String, Object?> initial = const {},}){
     return ${className}FormCreation(
       initial: initial,
@@ -285,9 +285,8 @@ Widget formEdition({required FutureOr<bool> Function(${className} data) submit})
       submit: submit,
     );
 }
-`: ''}
 
-}
+}`: ''}
 
 ${genForms === yesPlease ? `
 
@@ -308,15 +307,15 @@ class _${className}FormCreationState extends State<${className}FormCreation>{
 final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 final _formElements = [
 ${params.map((parameter) => {
-                const paramName = parameter.name
-                return `${parameter.entryClass}(
+                    const paramName = parameter.name
+                    return `${parameter.entryClass}(
                     name: ${classNameEnum}.${paramName}.name ,
                     ${parameter.additional}
       hintText: ${classNameEnum}.${paramName}.hintTranslation ,
       label: ${classNameEnum}.${paramName}.labelTranslation ,
       optional: ${!parameter.required},
       ),`
-            }).join("\n")
+                }).join("\n")
                 }
 ];
 
