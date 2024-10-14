@@ -332,7 +332,8 @@ ${params.map((parameter) => {
         Gap(12.h),
         ..._formElements,
     ];
-    return AppBarBuilderUI(
+    return Scaffold(
+    body:AppBarBuilderUI(
       reversed: true,
       scrollController: _scrollController,
       appBarContent: (context, opacity, offset) => Padding(
@@ -360,7 +361,7 @@ ${params.map((parameter) => {
         onChanged: () {
         },
         onWillPop: () async {
-          return !(formKey.currentState?.isDirty ?? false);
+          return !formKey.dirty;
         },
         child: ReusableCustomScrollView(
           scrollController: _scrollController,
@@ -370,10 +371,7 @@ ${params.map((parameter) => {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
             TextButton(
-                onPressed: () {
-                formKey.currentState?.reset();
-                Get.back();
-                },
+                onPressed: () => formKey.resetAndBack(),
                 child: Text /** TV **/ (
                 translate(AppTranslation.cancel),
                 textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
@@ -382,15 +380,12 @@ ${params.map((parameter) => {
             ),
             ElevatedButton(/* FormCreation */
                 onPressed: () async{
-                if (formKey.currentState?.validate() ?? false) {
-                    formKey.currentState?.save();
-                    ${className} formValue = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
+                if (formKey.validateSave()) {
+                    ${className} formValue = ${className}.fromMap(formKey.instantValue);
                     bool result = await widget.submit(formValue);
                     if (result) {
                         Get.back();
-                      } else {
-                        
-                      }
+                      } 
                 } 
                 },
                   style: ButtonStyle(
@@ -426,7 +421,7 @@ ${params.map((parameter) => {
               .toList(),
         ),
       ),
-    );
+    ));
   }
 
 }
@@ -470,7 +465,8 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
             formKey.showErrors,
             ];
 
-    return AppBarBuilderUI(
+    return Scaffold(
+    body:AppBarBuilderUI(
       reversed: true,
       scrollController: _scrollController,
       appBarContent: (context, opacity, offset) => Padding(
@@ -499,7 +495,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
         autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: () {
           try {
-            // ${className} change = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
+            // ${className} change = ${className}.fromMap(formKey.instantValue);
             // change d.value = change != widget.initial;
           } catch (e) {
             // chang ed.value = true;
@@ -516,9 +512,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: () {
-                        formKey.currentState?.reset();
-                      },
+                onPressed: () => formKey.resetAndBack(),
                       child: Text /** TV **/ (
                         translate(AppTranslation.cancel),
                         textDirection: isArabic() ? TextDirection.rtl : TextDirection.ltr,
@@ -528,9 +522,8 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                     ElevatedButton(
                     onPressed: !formKey.touched?null:
                     () async {
-                        if (formKey.currentState?.validate() ?? false) {
-                          formKey.currentState?.save();
-                          ${className} formValue = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
+                        if (formKey.validateSave()) {
+                          ${className} formValue = ${className}.fromMap(formKey.instantValue);
                           bool result = await widget.submit(formValue);
                           if (result) {
                           } else {
@@ -569,7 +562,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
         ),
       ),
                 ),
-    );
+    ),);
   }
 
 }
