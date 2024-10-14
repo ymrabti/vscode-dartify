@@ -144,7 +144,12 @@ ${params.map((parameter) => {
             ${params.length < 20 ? params.map((parameter) => parameter.name).join(", \n") : params.slice(0, 19).map((parameter) => parameter.name).join(", \n")},
         );
     }
-    
+
+${indx == 0 ? `@override
+  List<String> searchFields() {
+    return [${[...params].filter(e => e.inbuilt).map(e => `'\$${e.name}'`)},];
+  }`: ''}
+
 }
 
 
@@ -191,7 +196,7 @@ class ScreenState${className} extends PharmagestAbstractClass<${className}> {
   static ScreenState${className} emptyState() => ScreenState${className}(
         listItems: List.empty(),
         sortDescending: false,
-        sortFieldEnum: ${classNameEnum}.dateCreation.name,
+        sortFieldEnum: ${classNameEnum}.${[...params].map(e => e.name)[0]}.name,
       );
       
   @override
@@ -381,7 +386,11 @@ ${params.map((parameter) => {
                     formKey.currentState?.save();
                     ${className} formValue = ${className}.fromMap(formKey.currentState?.instantValue as Map<String, Object?>);
                     bool result = await widget.submit(formValue);
-                    logg(result);
+                    if (result) {
+                        Get.back();
+                      } else {
+                        
+                      }
                 } 
                 },
                   style: ButtonStyle(
