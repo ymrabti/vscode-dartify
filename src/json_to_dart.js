@@ -102,7 +102,7 @@ ${params.map((parameter) => {
 
     factory ${className}.fromMap(Map<String , Object?> json, {String? id}){
         return ${className}(
-    ${indx == 0 && genForms == yesPlease ? `id: faker.guid.guid(),` : ''}
+    ${indx == 0 && genForms == yesPlease ? `id:id?? faker.guid.guid(),` : ''}
             ${params.map((parameter) => {
                     const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
                     // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
