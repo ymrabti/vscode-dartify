@@ -100,7 +100,7 @@ ${params.map((parameter) => {
         );
     }
 
-    factory ${className}.fromMap(Map<String , Object?> json){
+    factory ${className}.fromMap(Map<String , Object?> json, {String? id}){
         return ${className}(
     ${indx == 0 && genForms == yesPlease ? `id: faker.guid.guid(),` : ''}
             ${params.map((parameter) => {
@@ -328,10 +328,6 @@ ${params.map((parameter) => {
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    List<Widget> items = [
-        Gap(12.h),
-        ..._formElements,
-    ];
     return Scaffold(
     body:AppBarBuilderUI(
       reversed: true,
@@ -409,10 +405,10 @@ ${params.map((parameter) => {
         ],
         ),
           ),
-        children: items
+        children: _formElements
               .mapIndexed(
                 (i, e) => Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: i == 0 ? 24.h : 8.h),
+                  padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: i == 0 ? 140.h : 8.h),
                   child: e,
                 ),
               )
@@ -495,7 +491,7 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
         autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: () {
           try {
-            // ${className} change = ${className}.fromMap(formKey.instantValue);
+            // ${className} change = ${className}.from Map(formKey.instantValue);
             // change d.value = change != widget.initial;
           } catch (e) {
             // chang ed.value = true;
@@ -523,7 +519,9 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                     onPressed: !formKey.touched?null:
                     () async {
                         if (formKey.validateSave()) {
-                          ${className} formValue = ${className}.fromMap(formKey.instantValue);
+                          ${className} formValue = ${className}.fromMap(formKey.instantValue,
+                                  id: widget.initial.id,
+                                );
                           bool result = await widget.submit(formValue);
                           if (result) {
                           } else {
