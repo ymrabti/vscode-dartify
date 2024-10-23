@@ -278,18 +278,34 @@ ${className}_Views({required this.model});
 
 
 
-static Widget formCreation({required FutureOr<bool> Function(${className} data) submit, Map<String, Object?> initial = const {},}){
-    return ${className}FormCreation(
-      initial: initial,
-      submit: submit,
-    );
-}
-Widget formEdition({required FutureOr<bool> Function(${className} data) submit}){
-    return ${className}FormEdition(
-      initial: model,
-      submit: submit,
-    );
-}
+    static Widget formCreation({Map<String, Object?> initial = const {}}) {
+        return StoreBuilder<AppState>(
+        builder: (context, store) {
+            return ${className}FormCreation(
+            initial: initial,
+            submit: (${className} data) {
+                store.dispatch(PharmAction_Abstr_ChangeList(items: [data], add: true));
+                return true;
+            },
+            );
+        },
+        );
+    }
+
+
+    Widget formEdition() {
+        return StoreBuilder<AppState>(
+        builder: (context, store) {
+            return ${className}FormEdition(
+            initial: model,
+            submit: (data) {
+                store.dispatch(PharmAction_Abstr_Update(item: data));
+                return true;
+            },
+            );
+        },
+        );
+    }
 
 }`: ''}
 
@@ -310,7 +326,7 @@ class ${className}FormCreation extends StatefulWidget {
 }
 class _${className}FormCreationState extends State<${className}FormCreation>{
 final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
-final _formElements = [
+final List<Widget> _formElements = [
 ${params.map((parameter) => {
                     const paramName = parameter.name
                     return `${parameter.entryClass}(
@@ -417,7 +433,7 @@ ${params.map((parameter) => {
               .toList(),
         ),
       ),
-    ));
+    ),);
   }
 
 }
