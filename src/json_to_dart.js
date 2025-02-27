@@ -582,15 +582,15 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 }
 `: ''}
 extension ${className}Sort on List<${className}>{
-    List<${className}> sorty(String caseField, {bool desc = false}){
+    List<${className}> sorty(${className}Enum caseField, {bool desc = false}){
       return this
       ..sort((a, b) {
-        int fact = (desc? -1 : 1);
+        int fact = (desc? 1 : -1);
         
           
           ${params.filter(e => e.inbuilt).map((parameter) => {
                     const paramName = parameter.name
-                    return `if(caseField== ${classNameEnum}.${paramName}.name){
+                    return `if(caseField== ${classNameEnum}.${paramName}){
             // ${parameter.sortable ? 'sortable' : 'unsortable'}
             
             ${parameter.sort != "" ? `
@@ -601,12 +601,13 @@ extension ${className}Sort on List<${className}>{
             `
                 }).join("\n")
             }
-          ${params.filter(e => !e.inbuilt).map((parameter) => {
+          ${''
+            /* params.filter(e => !e.inbuilt).map((parameter) => {
                 const paramName = parameter.name
                 return `case ${classNameEnum}.${paramName}:
             // ${parameter.sortable ? 'sortable' : 'unsortable'}
             `
-            }).join("\n")
+            }).join("\n") */
             }
             return 0;
         
