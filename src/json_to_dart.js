@@ -126,10 +126,6 @@ ${params.map((parameter) => {
     }
 
 
-    String stringify(){
-        return '${className}(${params.map((parameter) => `${parameter.name}:${parameter.inbuilt ? `$${parameter.name}` : `\${${parameter.name}.toString()\}`}`).join(", ")})';
-    }
-
     @override
     bool operator ==(Object other){
         return other is ${className} && 
