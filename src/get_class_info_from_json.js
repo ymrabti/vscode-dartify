@@ -32,16 +32,14 @@ module.exports = class JsonToDartClassInfo {
                 let parameterName = this.getDartParameterName(key)
                 let className = this.handelMap(element, key)
                 const optional = parameterName.startsWith('_');
-                const sortable = key.endsWith('$');
                 const suffix = optional ? '?' : '';
                 const name = optional ? parameterName.slice(1) : parameterName;
                 const dartType = className.dataType === "dynamic" ? "dynamic" : `${className.dataType}${suffix}`;
-                const sort = this.getSort(element, key, optional);
                 classDetails.parameters.push({
                     required: !optional,
                     name: name,
-                    sort: sort,
-                    sortable,
+                    sort: this.getSort(element, key, optional),
+                    sortable: key.endsWith('$'),
                     value: element,
                     dataType: dartType,
                     entryClass: this.getEntryClass(element, dartType),

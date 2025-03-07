@@ -67,10 +67,11 @@ ${params.map((parameter) => {
     
     ${indx == 0 && genForms == yesPlease ? '@override' : ''}
     Map<String,Object?> toJson(){
-        return {
+        return <String, Object?>{
             ${params.map((parameter) => {
                 var nullSafety = `${!parameter.required ? `if (${parameter.name} != null) ` : ''}`
-                return `${nullSafety}${classNameEnum}.${parameter.name}.name: ${parameter.inbuilt ? parameter.name : toJsonForClass(parameter)}`;
+                return `${nullSafety}${classNameEnum}.${parameter.name}.name: ${parameter.inbuilt ? parameter.name
+                    : toJsonForClass(parameter, parameter.className)}`;
             }).join(",\n")
 
             },
@@ -79,7 +80,7 @@ ${params.map((parameter) => {
 
     ${indx == 0 && genForms == yesPlease ? '@override' : ''}
     ${genForms === yesPlease ? `Map<String,Object?> toMap(){
-        return {
+        return <String, Object?>{
             ${params.map((parameter) => {
                 var nullSafety = `${!parameter.required ? `if (${parameter.name} != null) ` : ''}`
                 return `${nullSafety}${classNameEnum}.${parameter.name}.name: ${parameter.name}${getToMAP(parameter.dataType)}`;
@@ -141,9 +142,9 @@ ${params.map((parameter) => {
         );
     }
 
-${indx == 0 ? `@override
+${indx == 0 && genForms === yesPlease ? `@override
   List<String> searchFields() {
-    return [${[...params].filter(e => e.inbuilt).map(e => `'\$${e.name}'`)},];
+    return <String>[${[...params].filter(e => e.inbuilt).map(e => `'\$${e.name}'`)},];
   }`: ''}
 
 }
@@ -580,30 +581,30 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 extension ${className}Sort on List<${className}>{
     List<${className}> sorty(${className}Enum caseField, {bool desc = false}){
       return this
-      ..sort((a, b) {
+      ..sort((${className} a, ${className} b) {
         int fact = (desc? 1 : -1);
         
           
           ${params.filter(e => e.inbuilt).map((parameter) => {
                     const paramName = parameter.name
-                    return `if(caseField== ${classNameEnum}.${paramName}){
+                    return `if(caseField == ${classNameEnum}.${paramName}){
             // ${parameter.sortable ? 'sortable' : 'unsortable'}
             
             ${parameter.sort != "" ? `
             ${parameter.dataType} akey = a.${parameter.name};
             ${parameter.dataType} bkey = b.${parameter.name};
             ${parameter.sort}
-          }` : ''}
-            `
+          ` : ''}
+            }`
                 }).join("\n")
             }
-          ${''
-            /* params.filter(e => !e.inbuilt).map((parameter) => {
+          ${params.filter(e => !e.inbuilt).map((parameter) => {
                 const paramName = parameter.name
-                return `case ${classNameEnum}.${paramName}:
-            // ${parameter.sortable ? 'sortable' : 'unsortable'}
+                return `if(caseField == ${classNameEnum}.${paramName}){
+                    // ${parameter.sortable ? 'sortable' : 'unsortable'}
+                }
             `
-            }).join("\n") */
+            }).join("\n")
             }
             return 0;
         
@@ -624,11 +625,11 @@ function removeQuestion(str) {
     return str;
 }
 
-function toJsonForClass(parameter) {
+function toJsonForClass(parameter, className) {
     if (listRegExp.test(parameter.dataType)) {
         var optional = !parameter.required ? `?` : '';
         var param = parameter.name;
-        return `${param}${optional}.map<Map<String,dynamic>>((data)=> data.toJson()).toList()`
+        return `${param}${optional}.map<Map<String,dynamic>>((${className} data)=> data.toJson()).toList()`
     } else if (`${parameter.dataType}`.endsWith("?")) {
         var paranam = `${parameter.name}`;
         return `${paranam}?.toJson()`
@@ -640,7 +641,7 @@ function fromJsonForClass(parameter, className) {
     const asmap = ' as Map<String,Object?>';
     const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
     const pfj = `${parameter.className}.fromJson`;
-    const pl = `(${jsonKey} as List).map<${parameter.className}>((data)=> ${pfj}(data ${asmap})).toList()`;
+    const pl = `(${jsonKey} as List<dynamic>).map<${parameter.className}>((dynamic data)=> ${pfj}(data ${asmap})).toList()`;
     const isOptDataType = isOptionalDataType(parameter.dataType)
     const checkedType = checkType(parameter.dataType)
     if (listRegExp.test(parameter.dataType)) {
@@ -702,7 +703,7 @@ function getDartFromJSON(p, key) {
         case "object":
             if (Array.isArray(p.value)) {
                 return `(${key} as List<Object?>).map(
-                (el)=> ${getDartFromJSON({
+                (Object? el)=> ${getDartFromJSON({
                     value: p.value[0],
                     required: p.required,
                 }, 'el')}
