@@ -146,41 +146,41 @@ module.exports = class JsonToDartClassInfo {
     }
 
     getSort(value, key, optional) {
-        const ab = optional ? `if (akey == null || bkey == null) return fact;` : '';
+        const ab = optional ? `if (akey == null || bkey == null) return 0;` : '';
         switch (typeof (value)) {
             case "string":
                 if (isDate(value)) {
                     return `
                     ${ab}
-                    return fact * bkey.compareTo(akey);`;
+                    return fact * akey.compareTo(bkey);`;
                 }
                 else if (isTimeOfDay(value)) {
                     return `
                     ${ab}
                         int aValue = akey.hour + 60 + akey.minute;
                         int bValue = bkey.hour + 60 + bkey.minute;
-                        return  fact * (bValue - aValue);`
+                        return  fact * (aValue - bValue);`
                         ;
                 }
                 else {
                     return `
                     ${ab}
-                    return fact * (bkey.compareTo(akey));`;
+                    return fact * akey.compareTo(bkey);`;
                 }
             case "number":
                 if (isInteger(value)) {
                     return `
-                    ${ab}return fact * (bkey - akey);`;
+                    ${ab}return fact * (akey - bkey);`;
                 }
                 return `
                     ${ab}
-                    return fact * bkey.compareTo(akey);`;
+                    return fact * akey.compareTo(bkey);`;
             case "boolean":
                 return `
                 ${ab}
                 int aValue = akey ? 1 : 0;
                 int bValue = bkey ? 1 : 0;
-                return fact * (bValue - aValue);
+                return fact * (aValue - bValue);
                 `;
             default:
                 return "";

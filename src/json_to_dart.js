@@ -582,7 +582,7 @@ extension ${className}Sort on List<${className}>{
     List<${className}> sorty(${className}Enum caseField, {bool desc = false}){
       return this
       ..sort((${className} a, ${className} b) {
-        int fact = (desc? 1 : -1);
+        int fact = desc ? -1 : 1;
         
           
           ${params.filter(e => e.inbuilt).map((parameter) => {
