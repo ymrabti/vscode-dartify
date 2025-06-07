@@ -16,12 +16,11 @@ const { isDate,
     listRegExp,
 } = require("../functions");
 
-module.exports = function generateClasses(classInfo, genForms, jsonWild) {
-    return `
-import "package:flutter/material.dart";
-import 'package:flutter/foundation.dart' show listEquals;
-import "package:pharmagest/lib.dart";
-import "package:faker/faker.dart";
+module.exports = function generateClasses({ classInfo, genForms, jsonWild, basename, projectName, useSeparate }) {
+    const hasLists = [...classInfo.class].some(cls => [...cls.parameters].some(p => p.isArray));
+
+    return `import "package:${projectName}/lib.dart";
+${hasLists ? "import 'package:flutter/foundation.dart' show listEquals;" : ""}
 import "package:power_geojson/power_geojson.dart";
 ${genForms === yesPlease ? `
 import "package:collection/collection.dart";
@@ -31,6 +30,7 @@ import "package:gap/gap.dart";
 import "dart:async";
 import "package:form_plus/form_plus.dart";
 `: ''}
+${useSeparate ? `import "${basename}.enums.dart";` : ''}
 
 /*
 ${JSON.stringify(typeof jsonWild == 'string' ? JSON.parse(jsonWild) : jsonWild, (key, value) => value, 4)}
@@ -44,10 +44,10 @@ ${JSON.stringify(typeof jsonWild == 'string' ? JSON.parse(jsonWild) : jsonWild, 
 class ${className} ${indx == 0 && genForms == yesPlease ? ' extends PharmagestAbstractModel' : ''} {
 ${params.map((parameter) => {
             const paramName = parameter.name
-            return `
-            ${myClass.mutable ? "" : "final"} ${parameter.dataType} ${paramName};`
+            return `${myClass.mutable ? "" : "final"} ${parameter.dataType} ${paramName};`
         }).join("\n")
             }
+
      ${className}({
     ${indx == 0 && genForms == yesPlease ? 'required super.id,' : ''}
         ${params.map((parameter) => {
@@ -137,8 +137,8 @@ ${params.map((parameter) => {
     @override
     bool operator ==(Object other){
         return other is ${className} && 
-            other.runtimeType == runtimeType &&
-            ${params.map((parameter) => `other.${parameter.name} == ${parameter.name}`).join(" &&// \n")};
+            other.runtimeType == runtimeType &&//
+            ${params.map((parameter) => parameter.comparable).join(" &&// \n")};
     }
       
     @override

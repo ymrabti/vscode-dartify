@@ -8,7 +8,7 @@ const json = require('@outs/translations.json');
 const { JsonToTranslations } = require('@src/generate_translations');
 function test() {
     const dartData = new JsonToTranslations(json).result
-    const farma = 'C:/Users/youmt/Programminng/Flutter/my-apps/pharmagest/lib/espace_personel/profile_test_trans.dart'
+    const farma = ''
     writeFile(farma,
         dartData, (err) => {
             if (err) {

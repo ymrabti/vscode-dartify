@@ -28,22 +28,25 @@ module.exports = class JsonToDartClassInfo {
 
         for (const key in data) {
             if (Object.hasOwnProperty.call(data, key)) {
-                const element = data[key];
+                const value = data[key];
                 let parameterName = this.getDartParameterName(key)
-                let className = this.handelMap(element, key)
+                let className = this.handelMap(value, key)
                 const optional = parameterName.startsWith('_');
                 const suffix = optional ? '?' : '';
                 const name = optional ? parameterName.slice(1) : parameterName;
                 const dartType = className.dataType === "dynamic" ? "dynamic" : `${className.dataType}${suffix}`;
+                const isArr = Array.isArray(value);
                 classDetails.parameters.push({
                     required: !optional,
                     name: name,
-                    sort: this.getSort(element, key, optional),
+                    sort: this.getSort(value, key, optional),
                     sortable: key.endsWith('$'),
-                    value: element,
+                    value: value,
+                    isArray: isArr,
                     dataType: dartType,
-                    entryClass: this.getEntryClass(element, dartType),
-                    additional: getAdditionalParameters(element, dartType, name, optional),
+                    comparable: this.getComparable(name, isArr),
+                    entryClass: this.getEntryClass(value, dartType),
+                    additional: getAdditionalParameters(value, dartType, name, optional),
                     inbuilt: className.inbuilt,
                     includeSearch: key.endsWith('$'),
                     className: className.className
@@ -118,6 +121,10 @@ module.exports = class JsonToDartClassInfo {
         }
     }
 
+
+    getComparable(name, isArr) {
+        return isArr ? `listEquals(other.${name}, ${name})` : `other.${name} == ${name}`;
+    }
 
     getEntryClass(value, cls) {
         switch (typeof (value)) {

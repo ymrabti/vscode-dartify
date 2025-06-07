@@ -1,26 +1,26 @@
 const { yesPlease } = require("..");
 const { isDate,
-    isTimeOfDay,
-    isInteger,
-    getRandomIntInclusive,
-    isValidEmail,
-    isValidURL,
-    getRandomFactory,
-    removeQuestion,
-    toJsonForClass,
-    fromJsonForClass,
-    isOptionalDataType,
-    checkType,
-    getDartFromJSON,
-    getToMAP,
-    listRegExp,
+  isTimeOfDay,
+  isInteger,
+  getRandomIntInclusive,
+  isValidEmail,
+  isValidURL,
+  getRandomFactory,
+  removeQuestion,
+  toJsonForClass,
+  fromJsonForClass,
+  isOptionalDataType,
+  checkType,
+  getDartFromJSON,
+  getToMAP,
+  listRegExp,
 } = require("../functions");
 
-module.exports = function generateStates(classInfo, genForms, jsonWild) {
-    return `
+module.exports = function generateStates({ classInfo, genForms, jsonWild, basename, projectName, useSeparate }) {
+  return `
 import "package:flutter/material.dart";
 import 'package:flutter/foundation.dart' show listEquals;
-import "package:pharmagest/lib.dart";
+import "package:${projectName}/lib.dart";
 import "package:faker/faker.dart";
 import "package:power_geojson/power_geojson.dart";
 ${genForms === yesPlease ? `
@@ -31,12 +31,14 @@ import "package:gap/gap.dart";
 import "dart:async";
 import "package:form_plus/form_plus.dart";
 `: ''}
+${useSeparate ? `import "${basename}.enums.dart";` : ''}
+${useSeparate ? `import "${basename}.classes.dart";` : ''}
    
     ${classInfo.class.map((myClass, indx) => {
-        const className = myClass.className
-        const classNameEnum = `${className}Enum`
-        const params = myClass.parameters
-        return `
+    const className = myClass.className
+    const classNameEnum = `${className}Enum`
+    const params = myClass.parameters
+    return `
 
 ${genForms === yesPlease ? `
 class ScreenState${className} extends PharmagestAbstractClass<${className}> {
@@ -111,8 +113,8 @@ ScreenState${className} reducerScreenClass${className}(ScreenState${className} s
 
 
       `
-    }).join("\n")
-        }
+  }).join("\n")
+    }
   
      `
 }
