@@ -39,19 +39,23 @@ function isValidURL(input) {
     const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
     return urlRegex.test(input);
 }
+
 function isValidEmail(input) {
     // Regular expression for email validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(input);
 }
+
 function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
 function isValidPhoneNumber(input) {
     // Regular expression for phone number validation
     const phoneRegex = /^(?:\+?\d{1,3})?[-.\s]?(?:\(?\d{1,4}\)?)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
     return phoneRegex.test(input);
 }
+
 /**
  * 
  * @param {any} value 
@@ -155,6 +159,123 @@ function getAdditionalParameters(value, dataType, key, optional, level = 1) {
     }
     return '';
 }
+
+function removeQuestion(str) {
+    if (str.endsWith("?")) {
+        return str.substring(0, str.length - 1)
+    }
+    return str;
+}
+
+function toJsonForClass(parameter, className) {
+    if (listRegExp.test(parameter.dataType)) {
+        var optional = !parameter.required ? `?` : '';
+        var param = parameter.name;
+        return `${param}${optional}.map<Map<String,dynamic>>((${className} data)=> data.toJson()).toList()`
+    } else if (`${parameter.dataType}`.endsWith("?")) {
+        var paranam = `${parameter.name}`;
+        return `${paranam}?.toJson()`
+    }
+    return `${parameter.name}.toJson()`
+}
+
+function fromJsonForClass(parameter, className) {
+    const asmap = ' as Map<String,Object?>';
+    const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
+    const pfj = `${parameter.className}.fromJson`;
+    const pl = `(${jsonKey} as List<dynamic>).map<${parameter.className}>((dynamic data)=> ${pfj}(data ${asmap})).toList()`;
+    const isOptDataType = isOptionalDataType(parameter.dataType)
+    const checkedType = checkType(parameter.dataType)
+    if (listRegExp.test(parameter.dataType)) {
+        return isOptDataType ? `${jsonKey} == null ? ${checkedType} :${pl}` : pl
+    }
+    return isOptDataType ? `${jsonKey} == null ? ${checkedType} : ${pfj}(${jsonKey} ${asmap})` : `${pfj}(${jsonKey} ${asmap})`
+}
+
+function isOptionalDataType(dataType) {
+    return dataType.endsWith("?")
+}
+
+function checkType(variable) {
+    if (variable === 'int') {
+        return '0';
+    }
+    if (variable === 'double') {
+        return '0.0';
+    }
+    if (variable === 'String') {
+        return '""';
+    }
+    if (listRegExp.test(variable)) {
+        return 'List.empty';
+    }
+    if (variable === 'bool') {
+        return 'false';
+    }
+    if (['int?', 'double?', 'String?', 'bool?'].includes(variable)) {
+        return 'null';
+    }
+    else {
+        return `${removeQuestion(variable)}.fromJson({})`;
+    }
+}
+
+function getDartFromJSON(p, key) {
+    switch (typeof (p.value)) {
+        case "string":
+            if (isDate(p.value)) {
+                return !p.required ? `DateTime.tryParse('\${${key}}')` : `DateTime.parse('\${${key}}')`;
+            }
+            else if (isTimeOfDay(p.value)) {
+                return !p.required ? `(DateTime${p.required ? '' : '?'} date){
+              if(date!==null){
+                      return TimeOfDay.fromDateTime(date);
+                  }
+                      return null;
+              }(DateTime.tryParse('\${${key}}'))` : `TimeOfDay.fromDateTime(DateTime.parse('\${${key}}'))`;
+            }
+            return `${key} as String${p.required ? '' : '?'}`;
+        case "number":
+            if (isInteger(p.value)) {
+                return !p.required ? `int.tryParse('\${${key}}')` : `int.parse('\${${key}}')`;
+            }
+            return !p.required ? `double.tryParse('\${${key}}')` : `double.parse('\${${key}}')`;
+        case "boolean":
+            return `${key} as bool${p.required ? '' : '?'}`;
+        case "object":
+            if (Array.isArray(p.value)) {
+                return `(${key} as List<Object?>).map(
+                  (Object? el)=> ${getDartFromJSON({
+                    value: p.value[0],
+                    required: p.required,
+                }, 'el')}
+                  ).toList()`
+            }
+
+            return key
+        default:
+            return key
+    }
+}
+
+function getToMAP(dataType) {
+    switch (dataType) {
+        case "int":
+        case "int?":
+            return `.toString()`;
+        case "TimeOfDay":
+        case "TimeOfDay?":
+            return `.toDateTime()`;
+
+        case "double":
+        case "double?":
+            return `.toStringAsFixed(2)`;
+
+        default:
+            return ''
+    }
+}
+
 module.exports = {
     isDate,
     isTimeOfDay,
@@ -165,5 +286,12 @@ module.exports = {
     getRandomFactory,
     isValidPhoneNumber,
     getAdditionalParameters,
+    removeQuestion,
+    toJsonForClass,
+    fromJsonForClass,
+    isOptionalDataType,
+    checkType,
+    getDartFromJSON,
+    getToMAP,
     listRegExp
 }

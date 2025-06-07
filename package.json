@@ -2,13 +2,15 @@
     "name": "dartifyjson",
     "displayName": "DARTIFY",
     "description": "convert JSON data into DART data model",
-    "version": "0.3.35",
+    "version": "0.3.37",
     "scripts": {
         "test-dart-class": "node src/example-dart-class",
         "test-dart-translations": "node src/example-dart-translations",
         "preprebi": "echo \"Pre build install\"",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
         "prebi": "vsce package -o outs --no-yarn",
-        "bi": "code --install-extension outs/dartifyjson-0.3.35.vsix"
+        "bi": "code --install-extension outs/dartifyjson-0.3.37.vsix"
     },
     "engines": {
         "vscode": "^1.77.0"
@@ -73,6 +75,13 @@
         "@types/node": "16.x",
         "@types/vscode": "^1.70.0",
         "@vscode/test-electron": "^2.1.5",
+        "eslint": "^9.28.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-config-prettier": "^10.1.5",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-jest": "^28.13.0",
+        "eslint-plugin-prettier": "^5.4.1",
+        "eslint-plugin-security": "^3.0.1",
         "glob": "^8.0.3",
         "mocha": "^10.0.0",
         "typescript": "^4.7.4"

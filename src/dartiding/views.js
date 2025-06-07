@@ -1,23 +1,23 @@
-const { yesPlease } = require(".");
+const { yesPlease } = require("..");
 const { isDate,
-  isTimeOfDay,
-  isInteger,
-  getRandomIntInclusive,
-  isValidEmail,
-  isValidURL,
-  getRandomFactory,
-  removeQuestion,
-  toJsonForClass,
-  fromJsonForClass,
-  isOptionalDataType,
-  checkType,
-  getDartFromJSON,
-  getToMAP,
-  listRegExp,
-} = require("./functions");
+    isTimeOfDay,
+    isInteger,
+    getRandomIntInclusive,
+    isValidEmail,
+    isValidURL,
+    getRandomFactory,
+    removeQuestion,
+    toJsonForClass,
+    fromJsonForClass,
+    isOptionalDataType,
+    checkType,
+    getDartFromJSON,
+    getToMAP,
+    listRegExp,
+} = require("../functions");
 
-module.exports = function generateClass(classInfo, genForms, jsonWild) {
-  return `
+module.exports = function generateViews(classInfo, genForms, jsonWild) {
+    return `
 import "package:flutter/material.dart";
 import 'package:flutter/foundation.dart' show listEquals;
 import "package:pharmagest/lib.dart";
@@ -31,248 +31,12 @@ import "package:gap/gap.dart";
 import "dart:async";
 import "package:form_plus/form_plus.dart";
 `: ''}
-    
-/*    
-${JSON.stringify(typeof jsonWild == 'string' ? JSON.parse(jsonWild) : jsonWild, (key, value) => value, 4)}
-*/
+
     ${classInfo.class.map((myClass, indx) => {
-    const className = myClass.className
-    const classNameEnum = `${className}Enum`
-    const params = myClass.parameters
-    return `
-
-class ${className} ${indx == 0 && genForms == yesPlease ? ' extends PharmagestAbstractModel' : ''} {
-${params.map((parameter) => {
-      const paramName = parameter.name
-      return `
-            ${myClass.mutable ? "" : "final"} ${parameter.dataType} ${paramName};`
-    }).join("\n")
-      }
-     ${className}({
-    ${indx == 0 && genForms == yesPlease ? 'required super.id,' : ''}
-        ${params.map((parameter) => {
-        const reaq = !parameter.required ? '' : 'required'
-        return `\t\t${reaq} this.${parameter.name},`
-      }).join("\n")
-      }
-    });
-
-    ${className} copyWith({
-        ${params.map((parameter) => {
-        const endsWith = parameter.dataType.endsWith("?")
-        const dataType = parameter.dataType
-        const paramDtype = dataType + (dataType == "dynamic" ? "" : "?")
-        return `\t\t${endsWith ? dataType : paramDtype} ${parameter.name}, `;
-
-      }).join("\n")
-      }}){
-        return ${className}(
-        ${indx == 0 && genForms == yesPlease ? 'id: id,' : ''}
-        ${params.map((parameter) => `${parameter.name}:${parameter.name} ?? this.${parameter.name},`).join("\n")}
-        );
-    }
-    
-    ${indx == 0 && genForms == yesPlease ? '@override' : ''}
-    Map<String,Object?> toJson(){
-        return <String, Object?>{
-            ${params.map((parameter) => {
-        var nullSafety = `${!parameter.required ? `if (${parameter.name} != null) ` : ''}`
-        return `${nullSafety}${classNameEnum}.${parameter.name}.name: ${parameter.inbuilt ? parameter.name
-          : toJsonForClass(parameter, parameter.className)}`;
-      }).join(",\n")
-
-      },
-        };
-    }
-
-    ${indx == 0 && genForms == yesPlease ? '@override' : ''}
-    ${genForms === yesPlease ? `Map<String,Object?> toMap(){
-        return <String, Object?>{
-            ${params.map((parameter) => {
-        var nullSafety = `${!parameter.required ? `if (${parameter.name} != null) ` : ''}`
-        return `${nullSafety}${classNameEnum}.${parameter.name}.name: ${parameter.name}${getToMAP(parameter.dataType)}`;
-      }).join(",\n")
-
-        },
-        };
-    }`: ''}
-
-    factory ${className}.fromJson(Map<String , Object?> json){
-        return ${className}(
-    ${indx == 0 && genForms == yesPlease ? `id: json['id'] as String,` : ''}
-            ${params.map((parameter) => {
-          const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
-          // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
-          return `${parameter.name}:${parameter.inbuilt ? getDartFromJSON(parameter, jsonKey) : `${fromJsonForClass(parameter, myClass.className)}`}`;
-        }).join(",\n")},
-        );
-    }
-
-    factory ${className}.fromMap(Map<String , Object?> json, {String? id}){
-        return ${className}(
-    ${indx == 0 && genForms == yesPlease ? `id:id?? faker.guid.guid(),` : ''}
-            ${params.map((parameter) => {
-          const jsonKey = `json[${myClass.className}Enum.${parameter.name}.name]`;
-          // const inBuilt = `${jsonKey} as ${parameter.dataType}`;
-          return `${parameter.name}: ${jsonKey} as ${parameter.dataType}`;
-        }).join(",\n")},
-        );
-    }
-
-    ${genForms === yesPlease ? `factory ${className}.random(){
-        return ${className}(
-    ${indx == 0 && genForms == yesPlease ? `id: faker.guid.guid(),` : ''}
-            ${params.map((parameter) => {
-          return `${parameter.name}: ${getRandomFactory(parameter.value, parameter.name, parameter.dataType, !parameter.required)}`;
-        }).join(",\n")},
-        );
-    }`: ''}
-
-    @override
-    String toString(){
-        return PowerJSON(toJson()).toText();
-    }
-
-
-    @override
-    bool operator ==(Object other){
-        return other is ${className} && 
-            other.runtimeType == runtimeType &&
-            ${params.map((parameter) => `other.${parameter.name} == ${parameter.name}`).join(" &&// \n")};
-    }
-      
-    @override
-    int get hashCode {
-        return Object.hash(
-            runtimeType,
-            ${params.length < 20 ? params.map((parameter) => parameter.name).join(", \n") : params.slice(0, 19).map((parameter) => parameter.name).join(", \n")},
-        );
-    }
-
-${indx == 0 && genForms === yesPlease ? `@override
-  List<String> searchFields() {
-    return <String>[${[...params].filter(e => e.inbuilt).map(e => `'\$${e.name}'`)},];
-  }`: ''}
-
-}
-
-
-${genForms === yesPlease ? `
-
-
-class ScreenState${className} extends PharmagestAbstractClass<${className}> {
-  ScreenState${className}({
-    required super.listItems,
-    required super.sortFieldEnum,
-    required super.sortDescending,
-  });
-
-  @override
-  ScreenState${className} copyWith({
-    bool? sortDescending,
-    String? sortFieldEnum,
-    List<${className}>? listItems,
-  }) {
-    return ScreenState${className}(
-      listItems: listItems ?? this.listItems,
-      sortDescending: sortDescending ?? this.sortDescending,
-      sortFieldEnum: sortFieldEnum ?? this.sortFieldEnum,
-    );
-  }
-
-  static Future<ScreenState${className}> initState() async {
-    String sortField = ${className}Enum.${params[0].name}.name;
-    bool sortDescend = false;
-    final List<${className}> listItems = List<${className}>.generate(
-    25,
-      (e)=>${className}.random(),
-    ).sorty(
-      sortField,
-      desc: sortDescend,
-    );
-    return ScreenState${className}(
-      listItems: listItems,
-      sortDescending: sortDescend,
-      sortFieldEnum: sortField,
-    );
-  }
-
-  static ScreenState${className} emptyState() => ScreenState${className}(
-        listItems: List.empty(),
-        sortDescending: false,
-        sortFieldEnum: ${classNameEnum}.${[...params].map(e => e.name)[0]}.name,
-      );
-      
-  @override
-  bool operator ==(covariant ScreenState${className} other) {
-    if (identical(this, other)) return true;
-    return listEquals(other.listItems, listItems) && other.sortDescending == sortDescending && other.selectionMode == selectionMode && other.sortFieldEnum == sortFieldEnum;
-  }
-
-  @override
-  int get hashCode {
-    return listItems.hashCode ^ sortDescending.hashCode ^ selectionMode.hashCode ^ sortFieldEnum.hashCode;
-  }
-
-  @override
-  List<${className}> sorty(
-    String caseField, {
-    bool desc = false,
-  }) {
-    return listItems.sorty(caseField, desc: desc);
-  }
-}
-
-ScreenState${className} reducerScreenClass${className}(ScreenState${className} state, Object action,) {
-  var reducer = PharmagestAbstractReducer<${className}>().reducer(state, action);
-  return reducer as ScreenState${className};
-}
-
-`: ''}
-
-
-
-
-enum ${classNameEnum}{
-    ${params.map((parameter) => {
-          const paramName = parameter.name
-          return `${paramName},`
-        }).join("\n")
-      }
-    none,
-}
-
-
-${genForms === yesPlease ? `extension ${classNameEnum}X on ${classNameEnum}{
-    String get labelTranslation{
-    switch(this){
-    ${params.map((parameter) => {
-        const paramName = parameter.name
-        return `case ${classNameEnum}.${paramName}:
-        
-        return translate(AppTranslation.${paramName});`
-      }).join("\n")
-
-        }
-            default:
-        return name;
-            }
-    }
-    String get hintTranslation{
-    switch(this){
-    ${params.map((parameter) => {
-          const paramName = parameter.name
-          return `case ${classNameEnum}.${paramName}:
-        
-        return translate(AppTranslation.${paramName});`
-        }).join("\n")
-
-        }
-            default:
-        return name;
-            }
-    }
-}`: ''}
+        const className = myClass.className
+        const classNameEnum = `${className}Enum`
+        const params = myClass.parameters
+        return `
 
 
 ${genForms === yesPlease ? `class ${className}_Views {
@@ -313,8 +77,8 @@ ${className}_Views({required this.model});
 
 }`: ''}
 
-${genForms === yesPlease ? `
 
+${genForms === yesPlease ? `
 class ${className}FormCreation extends StatefulWidget {
   const ${className}FormCreation({
     Key? key,
@@ -332,16 +96,16 @@ class _${className}FormCreationState extends State<${className}FormCreation>{
 final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 final List<Widget> _formElements = [
 ${params.map((parameter) => {
-          const paramName = parameter.name
-          return `${parameter.entryClass}(
+                    const paramName = parameter.name
+                    return `${parameter.entryClass}(
                     name: ${classNameEnum}.${paramName}.name ,
                     ${parameter.additional}
       hintText: ${classNameEnum}.${paramName}.hintTranslation ,
       label: ${classNameEnum}.${paramName}.labelTranslation ,
       optional: ${!parameter.required},
       ),`
-        }).join("\n")
-        }
+                }).join("\n")
+                }
 ];
 
 
@@ -467,8 +231,8 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
   Widget build(BuildContext context) {
   final List<Widget> editionFormElements = [
                 ${params.map((parameter) => {
-          const paramName = parameter.name
-          return `${parameter.entryClass}(
+                    const paramName = parameter.name
+                    return `${parameter.entryClass}(
                         name: ${classNameEnum}.${paramName}.name ,
                         ${parameter.additional}
                     hintText: ${classNameEnum}.${paramName}.hintTranslation ,
@@ -476,8 +240,8 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
                     optional: ${!parameter.required},
                         formEdition: true,
                       ),`
-        }).join("\n")
-        }
+                }).join("\n")
+                }
             formKey.showErrors,
             ];
 
@@ -585,42 +349,10 @@ final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 
 }
 `: ''}
-extension ${className}Sort on List<${className}>{
-    List<${className}> sorty(${className}Enum caseField, {bool desc = false}){
-      return this
-      ..sort((${className} a, ${className} b) {
-        int fact = desc ? -1 : 1;
-        
-          
-          ${params.filter(e => e.inbuilt).map((parameter) => {
-          const paramName = parameter.name
-          return `if(caseField == ${classNameEnum}.${paramName}){
-            // ${parameter.sortable ? 'sortable' : 'unsortable'}
-            
-            ${parameter.sort != "" ? `
-            ${parameter.dataType} akey = a.${parameter.name};
-            ${parameter.dataType} bkey = b.${parameter.name};
-            ${parameter.sort}
-          ` : ''}
-            }`
-        }).join("\n")
-      }
-          ${params.filter(e => !e.inbuilt).map((parameter) => {
-        const paramName = parameter.name
-        return `if(caseField == ${classNameEnum}.${paramName}){
-                    // ${parameter.sortable ? 'sortable' : 'unsortable'}
-                }
-            `
-      }).join("\n")
-      }
-            return 0;
-        
-      });
-  }
-}
+
       `
-  }).join("\n")
-    }
+    }).join("\n")
+        }
   
      `
 }
