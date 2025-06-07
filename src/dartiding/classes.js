@@ -32,6 +32,9 @@ import "dart:async";
 import "package:form_plus/form_plus.dart";
 `: ''}
 
+/*
+${JSON.stringify(typeof jsonWild == 'string' ? JSON.parse(jsonWild) : jsonWild, (key, value) => value, 4)}
+*/
     ${classInfo.class.map((myClass, indx) => {
         const className = myClass.className
         const classNameEnum = `${className}Enum`
