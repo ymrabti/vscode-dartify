@@ -24,7 +24,7 @@ ${useSeparate?`import "${basename}.classes.dart";`: ''}
     ${classInfo.class.map((myClass, indx) => {
         const className = myClass.className
         const classNameEnum = `${className}Enum`
-        const params = myClass.parameters
+        const params = [...myClass.parameters].sort((a, b) => b.name.length - a.name.length);
         return `
 
 

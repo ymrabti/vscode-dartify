@@ -38,7 +38,7 @@ ${JSON.stringify(typeof jsonWild == 'string' ? JSON.parse(jsonWild) : jsonWild, 
     ${classInfo.class.map((myClass, indx) => {
         const className = myClass.className
         const classNameEnum = `${className}Enum`
-        const params = myClass.parameters
+        const params = [...myClass.parameters].sort((a, b) => b.name.length - a.name.length);
         return `
 
 class ${className} ${indx == 0 && genForms == yesPlease ? ' extends PharmagestAbstractModel' : ''} {
