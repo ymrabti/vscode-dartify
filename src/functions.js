@@ -1,28 +1,8 @@
-const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 
 function isInteger(n) {
     return n === +n && n === (n | 0);
-}
-
-function flutterProjectName() {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-        return null;
-    }
-
-    const rootPath = workspaceFolders[0].uri.fsPath;
-    const pubspecPath = path.join(rootPath, 'pubspec.yaml');
-
-    if (!fs.existsSync(pubspecPath)) {
-        return null;
-    }
-
-    const content = fs.readFileSync(pubspecPath, 'utf8');
-    const match = content.match(/^name:\s*(\S+)/m);
-
-    return match ? match[1] : null;
 }
 
 const listRegExp = RegExp(/^List<[a-zA-Z]+[\?]{0,1}>[\?]{0,1}$/);
@@ -73,15 +53,16 @@ function getRandomIntInclusive(min, max) {
 
 function isValidPhoneNumber(input) {
     // Regular expression for phone number validation
-    const phoneRegex = /^(?:\+?\d{1,3})?[-.\s]?(?:\(?\d{1,4}\)?)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+    const phoneRegex =
+        /^(?:\+?\d{1,3})?[-.\s]?(?:\(?\d{1,4}\)?)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
     return phoneRegex.test(input);
 }
 
 /**
- * 
- * @param {any} value 
- * @param {string} key 
- * @returns 
+ *
+ * @param {any} value
+ * @param {string} key
+ * @returns
  */
 function getRandomFactory(value, key, dataType, optional, l = 0) {
     if (optional) {
@@ -110,11 +91,11 @@ function getRandomFactory(value, key, dataType, optional, l = 0) {
             return 'faker.password';
         }
         if (isValidEmail(value)) {
-            var parsedDate = new Date(value)
+            var parsedDate = new Date(value);
             return `faker.email${getRandomIntInclusive(1, 4)}`;
         }
         if (isValidURL(value)) {
-            var parsedDate = new Date(value)
+            var parsedDate = new Date(value);
             return `faker.uri${getRandomIntInclusive(1, 3)}`;
         }
         return `faker.str${getRandomIntInclusive(1, 8)}`;
@@ -131,59 +112,77 @@ function getRandomFactory(value, key, dataType, optional, l = 0) {
     if (dataType === 'bool') {
         return 'faker.binary';
     }
-    if (typeof (value) == "object" && !Array.isArray(value)) {
-        return `${(dataType)}.random()`
+    if (typeof value == 'object' && !Array.isArray(value)) {
+        return `${dataType}.random()`;
     }
-    if (typeof (value) == "object" && Array.isArray(value)) {
+    if (typeof value == 'object' && Array.isArray(value)) {
         const eDatatype = dataType.replace('List<', '').replace('>', '');
-        const inList = `${dataType}.generate(10, (index) => ${getRandomFactory(value.at(0), key, eDatatype, optional)})`;
-        const outList = `${getRandomFactory(value.at(0), key, eDatatype, optional)}`
-        return l === 0 ? inList : outList
-    }
-    else {
+        const inList = `${dataType}.generate(10, (index) => ${getRandomFactory(
+            value.at(0),
+            key,
+            eDatatype,
+            optional
+        )})`;
+        const outList = `${getRandomFactory(value.at(0), key, eDatatype, optional)}`;
+        return l === 0 ? inList : outList;
+    } else {
         return `${key}`;
     }
 }
 
-
 function getAdditionalParameters(value, dataType, key, optional, level = 1) {
-    if (typeof (value) == "string") {
+    if (typeof value == 'string') {
         level > 1 && console.table({ value, dataType });
         if (isDate(value)) {
-            var parsedDate = new Date(value)
-            var isDateTime = parsedDate.getUTCHours() !== 0 || parsedDate.getUTCMinutes() !== 0 || parsedDate.getUTCSeconds() !== 0 || parsedDate.getUTCMilliseconds() !== 0;
+            var parsedDate = new Date(value);
+            var isDateTime =
+                parsedDate.getUTCHours() !== 0 ||
+                parsedDate.getUTCMinutes() !== 0 ||
+                parsedDate.getUTCSeconds() !== 0 ||
+                parsedDate.getUTCMilliseconds() !== 0;
             if (isDateTime) {
                 return 'inputType : InputType.both,';
             }
             return 'inputType : InputType.date,';
-        }
-        else if (isTimeOfDay(value)) {
+        } else if (isTimeOfDay(value)) {
             return 'inputType : InputType.time,';
         }
         return level > 1 ? '' : ``;
     }
-    if (typeof (value) == "object" && !Array.isArray(value)) {
+    if (typeof value == 'object' && !Array.isArray(value)) {
         const eDatatype = dataType.replace('List<', '').replace('>', '');
         return `
             dropdownBuilder: (context, item) => Text('$item'),
-      itemAsString: (item) => ${eDatatype != 'String' ? '\'$item\'' : 'item'},
-      items: List<${dataType}>.generate(10, (index) => ${getRandomFactory(value, key, dataType, optional, 1)}),
-            `
+      itemAsString: (item) => ${eDatatype != 'String' ? "'$item'" : 'item'},
+      items: List<${dataType}>.generate(10, (index) => ${getRandomFactory(
+            value,
+            key,
+            dataType,
+            optional,
+            1
+        )}),
+            `;
     }
-    if (typeof (value) == "object" && Array.isArray(value)) {
+    if (typeof value == 'object' && Array.isArray(value)) {
         const eDatatype = dataType.replace('List<', '').replace('>', '');
         return `
             dropdownBuilder: (context, item) => Text('$item'),
-      itemAsString: (item) => ${eDatatype != 'String' ? '\'$item\'' : 'item'},
-      items: List<${eDatatype}>.generate(10, (index) => ${getRandomFactory(value, key, dataType, optional, 1)}),
-            `
+      itemAsString: (item) => ${eDatatype != 'String' ? "'$item'" : 'item'},
+      items: List<${eDatatype}>.generate(10, (index) => ${getRandomFactory(
+            value,
+            key,
+            dataType,
+            optional,
+            1
+        )}),
+            `;
     }
     return '';
 }
 
 function removeQuestion(str) {
-    if (str.endsWith("?")) {
-        return str.substring(0, str.length - 1)
+    if (str.endsWith('?')) {
+        return str.substring(0, str.length - 1);
     }
     return str;
 }
@@ -192,12 +191,12 @@ function toJsonForClass(parameter, className) {
     if (listRegExp.test(parameter.dataType)) {
         var optional = !parameter.required ? `?` : '';
         var param = parameter.name;
-        return `${param}${optional}.map<Map<String,dynamic>>((${className} data)=> data.toJson()).toList()`
-    } else if (`${parameter.dataType}`.endsWith("?")) {
+        return `${param}${optional}.map<Map<String,dynamic>>((${className} data)=> data.toJson()).toList()`;
+    } else if (`${parameter.dataType}`.endsWith('?')) {
         var paranam = `${parameter.name}`;
-        return `${paranam}?.toJson()`
+        return `${paranam}?.toJson()`;
     }
-    return `${parameter.name}.toJson()`
+    return `${parameter.name}.toJson()`;
 }
 
 function fromJsonForClass(parameter, className) {
@@ -205,95 +204,97 @@ function fromJsonForClass(parameter, className) {
     const jsonKey = `json[${className}Enum.${parameter.name}.name]`;
     const pfj = `${parameter.className}.fromJson`;
     const pl = `(${jsonKey} as List<dynamic>).map<${parameter.className}>((dynamic data)=> ${pfj}(data ${asmap})).toList()`;
-    const isOptDataType = isOptionalDataType(parameter.dataType)
-    const checkedType = checkType(parameter.dataType)
+    const isOptDataType = isOptionalDataType(parameter.dataType);
+    const checkedType = checkType(parameter.dataType);
     if (listRegExp.test(parameter.dataType)) {
-        return isOptDataType ? `${jsonKey} == null ? ${checkedType} :${pl}` : pl
+        return isOptDataType ? `${jsonKey} == null ? ${checkedType} :${pl}` : pl;
     }
-    return isOptDataType ? `${jsonKey} == null ? ${checkedType} : ${pfj}(${jsonKey} ${asmap})` : `${pfj}(${jsonKey} ${asmap})`
+    return isOptDataType
+        ? `${jsonKey} == null ? ${checkedType} : ${pfj}(${jsonKey} ${asmap})`
+        : `${pfj}(${jsonKey} ${asmap})`;
 }
 
 function isOptionalDataType(dataType) {
-    return dataType.endsWith("?")
+    return dataType.endsWith('?');
 }
 
 function checkType(variable) {
     if (variable === 'int') {
         return '0';
-    }
-    if (variable === 'double') {
+    } else if (variable === 'double') {
         return '0.0';
-    }
-    if (variable === 'String') {
+    } else if (variable === 'String') {
         return '""';
-    }
-    if (listRegExp.test(variable)) {
-        return 'List.empty';
-    }
-    if (variable === 'bool') {
+    } else if (listRegExp.test(variable)) {
+        return `${removeQuestion(variable)}.empty()`;
+    } else if (variable === 'bool') {
         return 'false';
-    }
-    if (['int?', 'double?', 'String?', 'bool?'].includes(variable)) {
+    } else if (['int?', 'double?', 'String?', 'bool?'].includes(variable)) {
         return 'null';
-    }
-    else {
+    } else {
         return `${removeQuestion(variable)}.fromJson({})`;
     }
 }
 
 function getDartFromJSON(p, key) {
-    switch (typeof (p.value)) {
-        case "string":
+    switch (typeof p.value) {
+        case 'string':
             if (isDate(p.value)) {
-                return !p.required ? `DateTime.tryParse('\${${key}}')` : `DateTime.parse('\${${key}}')`;
-            }
-            else if (isTimeOfDay(p.value)) {
-                return !p.required ? `(DateTime${p.required ? '' : '?'} date){
+                return !p.required
+                    ? `DateTime.tryParse('\${${key}}')`
+                    : `DateTime.parse('\${${key}}')`;
+            } else if (isTimeOfDay(p.value)) {
+                return !p.required
+                    ? `(DateTime${p.required ? '' : '?'} date){
               if(date!==null){
                       return TimeOfDay.fromDateTime(date);
                   }
                       return null;
-              }(DateTime.tryParse('\${${key}}'))` : `TimeOfDay.fromDateTime(DateTime.parse('\${${key}}'))`;
+              }(DateTime.tryParse('\${${key}}'))`
+                    : `TimeOfDay.fromDateTime(DateTime.parse('\${${key}}'))`;
             }
             return `${key} as String${p.required ? '' : '?'}`;
-        case "number":
+        case 'number':
             if (isInteger(p.value)) {
                 return !p.required ? `int.tryParse('\${${key}}')` : `int.parse('\${${key}}')`;
             }
             return !p.required ? `double.tryParse('\${${key}}')` : `double.parse('\${${key}}')`;
-        case "boolean":
+        case 'boolean':
             return `${key} as bool${p.required ? '' : '?'}`;
-        case "object":
+        case 'object':
             if (Array.isArray(p.value)) {
                 return `(${key} as List<Object?>).map(
-                  (Object? el)=> ${getDartFromJSON({
-                    value: p.value[0],
-                    required: p.required,
-                }, 'el')}
-                  ).toList()`
+                  (Object? el)=> ${getDartFromJSON(
+                      {
+                          value: p.value[0],
+                          required: p.required,
+                      },
+                      'el'
+                  )}
+                  ).toList()`;
             }
 
-            return key
+            return key;
         default:
-            return key
+            return key;
     }
 }
 
 function getToMAP(dataType) {
     switch (dataType) {
-        case "int":
-        case "int?":
+        case 'int':
+        case 'int?':
             return `.toString()`;
-        case "TimeOfDay":
-        case "TimeOfDay?":
+        case 'TimeOfDay':
+        case 'TimeOfDay?':
             return `.toDateTime()`;
 
-        case "double":
-        case "double?":
+        case 'double':
+        case 'double?':
             return `.toStringAsFixed(2)`;
 
         default:
-            return ''
+            return '';
     }
 }
 
@@ -311,9 +312,7 @@ module.exports = {
     toJsonForClass,
     fromJsonForClass,
     isOptionalDataType,
-    checkType,
     getDartFromJSON,
     getToMAP,
-    flutterProjectName,
-    listRegExp
-}
+    listRegExp,
+};

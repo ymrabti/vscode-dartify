@@ -12,7 +12,25 @@ const {
     generateViews,
     generateStates,
 } = require('./src/dartiding');
-const { flutterProjectName } = require('./src/functions');
+
+function flutterProjectName() {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+        return null;
+    }
+
+    const rootPath = workspaceFolders[0].uri.fsPath;
+    const pubspecPath = path.join(rootPath, 'pubspec.yaml');
+
+    if (!fs.existsSync(pubspecPath)) {
+        return null;
+    }
+
+    const content = fs.readFileSync(pubspecPath, 'utf8');
+    const match = content.match(/^name:\s*(\S+)/m);
+
+    return match ? match[1] : null;
+}
 
 /**
  * @param {vscode.ExtensionContext} context

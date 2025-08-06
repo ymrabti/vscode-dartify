@@ -11,7 +11,6 @@ const {
     toJsonForClass,
     fromJsonForClass,
     isOptionalDataType,
-    checkType,
     getDartFromJSON,
     getToMAP,
     listRegExp,

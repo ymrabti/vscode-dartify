@@ -1,6 +1,10 @@
 {
     "timeOnly": "12:43",
     "dateOnly": "2023-12-13",
-    "_dateTime": "2023-12-13T21:43:23.907Z",
-    "dateBool": false
+    "_dateeTime": [
+        {
+            "date": "2023-12-13T21:43:23.907Z"
+        }
+    ],
+    "_dateBool": 1.1
 }
