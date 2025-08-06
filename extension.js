@@ -44,6 +44,7 @@ function activate(context) {
                         title: 'Generate Flutter Forms 📃',
                     });
                     const separateChoices = [yesPlease, nooThanks];
+                    const currentFilePath = editor.document.uri.fsPath;
                     const useSeparate = await vscode.window.showQuickPick(
                         path.extname(currentFilePath) === '.json'
                             ? separateChoices
@@ -52,7 +53,6 @@ function activate(context) {
                     );
                     const dartData = new JsonToDartClassInfo(json, className).result;
                     ///
-                    const currentFilePath = editor.document.uri.fsPath;
                     const currentDir = path.dirname(currentFilePath);
                     const baseName = path.basename(currentFilePath, path.extname(currentFilePath));
                     const data = {
