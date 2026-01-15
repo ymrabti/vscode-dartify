@@ -1,4 +1,5 @@
 .vscode/**
+outs/**
 .vscode-test/**
 test/**
 .gitignore
