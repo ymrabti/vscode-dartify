@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const JsonToDartClassInfo = require('@src/get_class_info_from_json');
 const { yesPlease, nooThanks } = require('@src/index');
-const { JsonToTranslations } = require('./src/generate_translations');
 const {
     generateClasses,
     generateEnums,
@@ -67,7 +66,7 @@ function activate(context) {
                         path.extname(currentFilePath) === '.json'
                             ? separateChoices
                             : separateChoices.reverse(),
-                        { title: 'Generate Separate Files 🖇️' }
+                        { title: 'Generate Separate Files 🖇️' },
                     );
                     const dartData = new JsonToDartClassInfo(json, className).result;
                     ///
@@ -108,7 +107,7 @@ function activate(context) {
                             .join('\n');
                         const allDocument = new vscode.Range(
                             editor.document.lineAt(0).range.start,
-                            editor.document.lineAt(editor.document.lineCount - 1).range.end
+                            editor.document.lineAt(editor.document.lineCount - 1).range.end,
                         );
                         editor.edit((builder) => {
                             builder.replace(!textSelected ? allDocument : selection, dart);
@@ -123,14 +122,14 @@ function activate(context) {
                             if (file.generate) {
                                 const filePath = path.join(
                                     currentDir,
-                                    `${baseName}.${file.suffix}`
+                                    `${baseName}.${file.suffix}`,
                                 );
 
                                 try {
                                     fs.writeFileSync(filePath, file.content, 'utf8');
                                 } catch (err) {
                                     vscode.window.showErrorMessage(
-                                        `Error writing file ${filePath}: ${err}`
+                                        `Error writing file ${filePath}: ${err}`,
                                     );
                                 }
                             }
@@ -143,11 +142,11 @@ function activate(context) {
                                     .filter((f) => f.generate)
                                     .map((f) => `export '${baseName}.${f.suffix}';`)
                                     .join('\n'),
-                                'utf8'
+                                'utf8',
                             );
                         } catch (err) {
                             vscode.window.showErrorMessage(
-                                `Error writing file ${filePath}: ${err}`
+                                `Error writing file ${filePath}: ${err}`,
                             );
                         }
                     }
@@ -159,108 +158,10 @@ function activate(context) {
                 console.log(error);
                 vscode.window.showErrorMessage('Invalid Json Formatter');
             }
-        }
-    );
-    let disposable2 = vscode.commands.registerCommand(
-        'dartify.toTranslations',
-        async function disposable02() {
-            // await selectFile();
-            const editor = vscode.window.activeTextEditor;
-            if (!editor) {
-                return;
-            }
-            const text = editor.document.getText();
-            const selection = editor.selection;
-            const textSelected = editor.document.getText(selection);
-            const textt = !textSelected ? text : textSelected;
-            try {
-                const json = JSON.parse(textt.trim());
-                if (Array.isArray(json)) {
-                    const transss = new JsonToTranslations(json);
-                    const dartData = transss.DartifyTranslations;
-                    const allDocument = new vscode.Range(
-                        editor.document.lineAt(0).range.start,
-                        editor.document.lineAt(editor.document.lineCount - 1).range.end
-                    );
-                    editor.edit((builder) => {
-                        builder.replace(!textSelected ? allDocument : selection, dartData);
-                    });
-                    vscode.window.showInformationMessage(
-                        `Translations Generated Successfully 🌐✔️`
-                    );
-                }
-            } catch (error) {
-                console.log(error);
-                vscode.window.showErrorMessage('Invalid Json Formatter');
-            }
-        }
-    );
-    let disposable3 = vscode.commands.registerCommand(
-        'dartify.toAppEnums',
-        async function disposable03() {
-            // await selectFile();
-            const editor = vscode.window.activeTextEditor;
-            if (!editor) {
-                return;
-            }
-            const text = editor.document.getText();
-            const selection = editor.selection;
-            const textSelected = editor.document.getText(selection);
-            const textt = !textSelected ? text : textSelected;
-            try {
-                const json = JSON.parse(textt.trim());
-                if (Array.isArray(json)) {
-                    const textEnums = `
-enum AppLocales { ${Object.keys(json[0])
-                        .filter((e) => e != 'key')
-                        .join(', ')} }
-
-enum AppTranslation {
-  ${json
-      .map(
-          (e) => `
-    ${Object.keys(e)
-        .filter((e) => e != 'key')
-        .map((j) => `/// ${j}: ${`${e[j]}`.replace("'", "\\'")}`)
-        .join('\n ')}
-  ${e.key},`
-      )
-      .join('\n')}
-}
-
-${Object.keys(json[0])
-    .filter((e) => e != 'key')
-    .map(
-        (f) => `
-Map<String, String> ${f} = {
-    ${json
-        .map((e) => `AppTranslation.${e.key}.name: '${`${e[f]}`.replace("'", "\\'")}',`)
-        .join('\n')}
-};
-`
-    )
-    .join('\n')}
-
-                `;
-                    const allDocument = new vscode.Range(
-                        editor.document.lineAt(0).range.start,
-                        editor.document.lineAt(editor.document.lineCount - 1).range.end
-                    );
-                    editor.edit((builder) => {
-                        builder.replace(!textSelected ? allDocument : selection, textEnums);
-                    });
-                    vscode.window.showInformationMessage(`Enums Generated Successfully 🌐✔️`);
-                }
-            } catch (error) {
-                console.log(error);
-                vscode.window.showErrorMessage('Invalid Json Formatter');
-            }
-        }
+        },
     );
 
     context.subscriptions.push(disposable1);
-    context.subscriptions.push(disposable2);
-    context.subscriptions.push(disposable3);
 }
 async function selectFile() {
     const currentFolder = vscode.workspace.rootPath; // Get the current workspace folder

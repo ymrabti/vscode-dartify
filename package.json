@@ -1,11 +1,10 @@
 {
     "name": "dartifyjson",
-    "displayName": "DARTIFY",
-    "description": "convert JSON data into DART data model",
+    "displayName": "DARTIFY: JSON to DART data model",
+    "description": "convert JSON data into DART data model, with support for nested classes, lists, and null safety.",
     "version": "0.4.4",
     "scripts": {
         "test-dart-class": "node src/example-dart-class",
-        "test-dart-translations": "node src/example-dart-translations",
         "preprebi": "echo \"Pre build install\"",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
@@ -39,16 +38,6 @@
                 "command": "dartify.parseJson",
                 "title": "DARTIFY: Generate classes",
                 "shortTitle": "dartify-genclasses"
-            },
-            {
-                "command": "dartify.toTranslations",
-                "title": "DARTIFY: Generate translations",
-                "shortTitle": "dartify-gentranslations"
-            },
-            {
-                "command": "dartify.toAppEnums",
-                "title": "DARTIFY: Generate enums",
-                "shortTitle": "dartify-genenums"
             }
         ],
         "keybindings": [

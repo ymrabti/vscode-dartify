@@ -181,13 +181,3 @@ productPrice:$productPrice
 }
 
 ```
-
-## Demo
-
-### example 1
-
-![alt text](https://github.com/praveen576232/JsonToDart/blob/main/screenshots/j0.gif?raw=true)
-
-### example 2
-
-![alt text](https://github.com/praveen576232/JsonToDart/blob/main/screenshots/j1.gif?raw=true)
