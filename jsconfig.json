@@ -3,11 +3,10 @@
 		"module": "commonjs",
 		"target": "ES2020",
 		"checkJs": false,  
-		"baseUrl": ".",
+		// "baseUrl": "./",
 		"paths": {
-			"@root/*": ["*"],
-			"@src/*": ["src/*"],
-			"@outs/*": ["outs/*"]
+			"@src/*": ["./src/*"],
+			"@outs/*": ["./outs/*"]
 		},
 		"lib": [
 			"ES2020"

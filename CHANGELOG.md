@@ -1,9 +1,28 @@
 # Change Log
 
-All notable changes to the "JtoD" extension will be documented in this file.
+All notable changes to the "DARTIFY: JSON to DART data model" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+### Added
+- Added comprehensive unit test suite covering core JSON parsing logic, Dart code generators, and utility functions.
+- Introduced `npm run test:unit` script for rapid Mocha-based testing.
+### Changed
+- Ongoing improvements and bug fixes.
 
-- Initial release
+## [0.4.4] - Current
+### Added
+- Advanced generation of Flutter Forms (Creation/Edition).
+- Generation of separate or combined Dart files based on user preference.
+- Enum and Extensions generation from JSON values.
+- Automatic extraction of Flutter project name from `pubspec.yaml` to configure imports.
+- View and State class generation for robust state management.
+- CopyWith, toJson, fromJson, toString, equals, and hashCode generator algorithm optimized.
+- Seamless multi-file generation with auto-linking of imports and models.
+
+### Changed
+- Improved nested class handling and null-safety implementation.
+
+## [0.1.0] - Initial release
+- Initial capability to convert JSON objects/arrays to Dart data models seamlessly.

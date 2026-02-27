@@ -3,7 +3,7 @@ require('module-alias/register');
 const { writeFile } = require('fs');
 const { yesPlease, nooThanks } = require('.');
 // const { resolve } = require('path');
-const JsonToDartClassInfo = require('@src/get_class_info_from_json');
+const JsonToDartClassInfo = require('@src/get_infos');
 const json = require('@outs/example.json');
 const { generateClasses } = require('./dartiding');
 

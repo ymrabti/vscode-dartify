@@ -2,7 +2,7 @@ require('module-alias/register');
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
-const JsonToDartClassInfo = require('@src/get_class_info_from_json');
+const JsonToDartClassInfo = require('@src/get_infos');
 const { yesPlease, nooThanks } = require('@src/index');
 const {
     generateClasses,
