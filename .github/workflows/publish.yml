@@ -22,9 +22,4 @@ jobs:
                   scope: "@youmtinet" # Your npm scope
                   always-auth: true
 
-            # Authenticate via OIDC
-            - run: npm whoami
-              env:
-                  NODE_AUTH_TOKEN: ${{ steps.setup-node.outputs.node-auth-token }}
-
             - run: npm publish --access public
