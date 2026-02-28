@@ -1,0 +1,29 @@
+name: Publish to Open VSX
+
+on:
+    push:
+        tags:
+            - "v*.*.*" # triggers on tags like v1.0.0
+    workflow_dispatch: # allows manual trigger from GitHub UI
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "18"
+
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
+
+            - name: Package extension
+              run: npx vsce package -o outs --no-yarn
+
+            - name: Publish to Open VSX
+              run: npx ovsx publish outs/*.vsix -p ${{ secrets.OVSX_PAT }}

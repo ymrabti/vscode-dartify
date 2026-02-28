@@ -4,6 +4,9 @@ All notable changes to the "DARTIFY: JSON to DART data model" extension will be 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.1] - 2026-02-28
+- Fixed a critical bug in the Flutter Forms generation logic that caused incorrect form field types for certain JSON structures.
+
 ## [1.0.0]
 ### Added
 - Added comprehensive unit test suite covering core JSON parsing logic, Dart code generators, and utility functions.

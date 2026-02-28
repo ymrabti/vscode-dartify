@@ -1,30 +1,30 @@
-name: Publish to NPM
+name: Publish Package to npm
 
 on:
-  release:
-    types: [created]
-  workflow_dispatch:
-    
+    push:
+        tags:
+            - "v*.*.*" # triggers on tags like v1.0.0
+    workflow_dispatch: # allows manual trigger from GitHub UI
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          registry-url: 'https://registry.npmjs.org'
+    publish:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write # Required for OIDC
+        steps:
+            - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  registry-url: https://registry.npmjs.org/
+                  scope: "@youmtinet" # Your npm scope
+                  always-auth: true
 
-      - name: Install vsce
-        # Required because 'prepublish' script runs 'vsce package'
-        run: npm install -g @vscode/vsce
+            # Authenticate via OIDC
+            - run: npm whoami
+              env:
+                  NODE_AUTH_TOKEN: ${{ steps.setup-node.outputs.node-auth-token }}
 
-      - name: Publish to NPM
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - run: npm publish --access public

@@ -2,11 +2,11 @@
     "name": "dartifyjson",
     "displayName": "DARTIFY: JSON to DART data model",
     "description": "Advanced JSON to Dart models generator. Generates null-safe classes, Flutter Forms, Enums, Extensions, and States. Supports nested structures and lists.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": {
         "name": "Younes MRabti",
         "email": "admin@youmti.net",
-        "url": "https://youmti.net"
+        "url": "https://avatars.githubusercontent.com/ymrabti"
     },
     "license": "MIT",
     "release": {
