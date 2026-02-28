@@ -1,5 +1,5 @@
 {
-    "name": "dartifyjson",
+    "name": "ymrabti.dartifyjson",
     "displayName": "DARTIFY: JSON to DART data model",
     "description": "Advanced JSON to Dart models generator. Generates null-safe classes, Flutter Forms, Enums, Extensions, and States. Supports nested structures and lists.",
     "version": "1.0.1",
