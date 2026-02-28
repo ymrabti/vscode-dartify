@@ -4,14 +4,16 @@ All notable changes to the "DARTIFY: JSON to DART data model" extension will be 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [Unreleased]
+## [1.0.0]
 ### Added
 - Added comprehensive unit test suite covering core JSON parsing logic, Dart code generators, and utility functions.
 - Introduced `npm run test:unit` script for rapid Mocha-based testing.
 ### Changed
 - Ongoing improvements and bug fixes.
 
-## [0.4.4] - Current
+`2026-02-27`
+
+## [0.4.4]
 ### Added
 - Advanced generation of Flutter Forms (Creation/Edition).
 - Generation of separate or combined Dart files based on user preference.

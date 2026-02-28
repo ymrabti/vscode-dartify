@@ -1,6 +1,8 @@
 # Dartify: JSON to Dart (VS Code Extension & Code Generator)
-![Image](https://github.com/ymrabti/vscode-dartify/blob/main/assets/dartify_02.jpg)
+
 Welcome to **JSON to Dart (Dartify)**—a powerful VS Code extension and code generator that effortlessly transforms standard JSON objects and arrays into robust Dart data models.
+
+![Image](https://github.com/ymrabti/vscode-dartify/blob/master/assets/dartify_02.jpg?raw=true)
 
 ## Features & Capabilities
 
